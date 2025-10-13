@@ -16,7 +16,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TypeFast - Free Online Typing Speed Test | WPM Calculator",
+  title: "TypeFast - Test Your Typing Speed",
   description:
     "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM (Words Per Minute), accuracy, and improve your typing skills with our interactive typing test.",
   keywords: [
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://typefast.nvixio.com",
-    title: "TypeFast - Free Online Typing Speed Test",
+    title: "TypeFast - Test Your Typing Speed",
     description:
       "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
     siteName: "TypeFast",
@@ -60,13 +60,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "TypeFast - Free Online Typing Speed Test",
+        alt: "TypeFast - Test Your Typing Speed",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TypeFast - Free Online Typing Speed Test",
+    title: "TypeFast - Test Your Typing Speed",
     description:
       "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
     images: ["/og-image.png"],

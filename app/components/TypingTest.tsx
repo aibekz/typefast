@@ -42,7 +42,7 @@ export default function TypingTest() {
   return (
     <div className="min-h-screen bg-[var(--bg-dark)] text-[var(--fg-light)] font-sans">
       {/* SEO Heading - Hidden but accessible to screen readers */}
-      <h1 className="sr-only">TypeFast - Free Online Typing Speed Test</h1>
+      <h1 className="sr-only">TypeFast - Test Your Typing Speed</h1>
       <Header
         duration={duration}
         timeRemaining={timeRemaining}
