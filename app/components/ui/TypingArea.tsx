@@ -1,0 +1,123 @@
+import type { Word } from "../../types";
+
+interface TypingAreaProps {
+  words: Word[];
+  currentWordIndex: number;
+  input: string;
+  incorrectChars: Set<string>;
+  inputRef: React.RefObject<HTMLInputElement>;
+  onContainerClick: () => void;
+  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}
+
+export default function TypingArea({
+  words,
+  currentWordIndex,
+  input,
+  incorrectChars,
+  inputRef,
+  onContainerClick,
+  onInputChange,
+  onKeyDown,
+  onKeyPress,
+}: TypingAreaProps) {
+  return (
+    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-3 sm:px-4">
+      <div
+        className="w-full max-w-4xl mb-6 sm:mb-8 relative cursor-text"
+        onClick={onContainerClick}
+        data-typing-area
+      >
+        <div className="text-lg sm:text-xl md:text-2xl leading-relaxed text-center word-transition">
+          {words.map((word, index) => (
+            <span
+              key={index}
+              className={`inline-block mx-2 transition-colors duration-200 ${
+                index === currentWordIndex
+                  ? "text-[var(--fg-accent)]"
+                  : index < currentWordIndex
+                    ? "text-[var(--fg-light)] opacity-60"
+                    : "text-[var(--fg-muted)] opacity-50"
+              }`}
+            >
+              {index === currentWordIndex ? (
+                <>
+                  {word.text.split("").map((char, charIndex) => {
+                    const isTyped = charIndex < input.length;
+                    const isCorrect =
+                      isTyped &&
+                      input[charIndex].toLowerCase() === char.toLowerCase();
+                    const charKey = `${index}-${charIndex}`;
+                    const _wasIncorrect = incorrectChars.has(charKey);
+
+                    return (
+                      <span key={charIndex}>
+                        {/* Cursor positioned at current typing position - before the character */}
+                        {charIndex === input.length && (
+                          <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] mr-0.5 animate-pulse"></span>
+                        )}
+                        <span
+                          className={`transition-colors duration-100 ${
+                            isTyped
+                              ? isCorrect
+                                ? "text-[var(--fg-accent)]"
+                                : "text-red-400"
+                              : "text-[var(--fg-muted)] opacity-50"
+                          }`}
+                        >
+                          {char}
+                        </span>
+                        {/* Cursor at the end if word is complete */}
+                        {charIndex === word.text.length - 1 &&
+                          input.length === word.text.length && (
+                            <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
+                          )}
+                      </span>
+                    );
+                  })}
+                </>
+              ) : (
+                <>
+                  {word.text.split("").map((char, charIndex) => {
+                    const charKey = `${index}-${charIndex}`;
+                    const _wasIncorrect = incorrectChars.has(charKey);
+
+                    return (
+                      <span
+                        key={charIndex}
+                        className={`transition-colors duration-100 ${
+                          _wasIncorrect
+                            ? "text-red-400"
+                            : "text-[var(--fg-light)] opacity-60"
+                        }`}
+                      >
+                        {char}
+                      </span>
+                    );
+                  })}
+                </>
+              )}
+            </span>
+          ))}
+        </div>
+
+        {/* Hidden input for capturing keystrokes */}
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={onInputChange}
+          onKeyDown={onKeyDown}
+          onKeyPress={onKeyPress}
+          className="absolute opacity-0 pointer-events-none"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+        />
+      </div>
+    </main>
+  );
+}

@@ -1,36 +1,27 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TypeFast
 
-## Getting Started
+A modern, free online typing speed test application built with Next.js and React.
 
-First, run the development server:
+## 🚀 Live Demo
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Try it out: **[typefast.nvixio.com](https://typefast.nvixio.com)**
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Real-time Typing Test** - Test your typing speed with live feedback
+- **Multiple Durations** - Choose from 5 seconds to 5 minutes
+- **Accurate Statistics** - WPM, accuracy, and character analysis
+- **Modern UI** - Clean, responsive design with dark theme
+- **Mobile Friendly** - Works perfectly on all devices
+- **Free & Fast** - No registration required, instant results
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📊 How It Works
 
-## Learn More
+1. **Start Typing** - Begin typing the displayed words
+2. **Real-time Feedback** - See correct/incorrect characters instantly
+3. **Timer Countdown** - Watch your remaining time
+4. **Results Screen** - View your WPM, accuracy, and detailed stats
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Start typing faster today!** 🚀

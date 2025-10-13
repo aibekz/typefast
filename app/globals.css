@@ -1,26 +1,91 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-dark: #0f0f0f;
+  --bg-card: #1a1a1a;
+  --fg-light: #e5e5e5;
+  --fg-muted: #a3a3a3;
+  --fg-accent: #ffffff;
+  --border: #404040;
+  --border-light: #525252;
+  --matrix-green: #39ff14;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-bg-dark: var(--bg-dark);
+  --color-bg-card: var(--bg-card);
+  --color-fg-light: var(--fg-light);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-accent: var(--fg-accent);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-matrix-green: var(--matrix-green);
+  --font-sans: var(--font-ibm-plex-sans);
+  --font-mono: var(--font-ibm-plex-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-dark);
+  color: var(--fg-light);
+  font-family: var(--font-ibm-plex-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom animations */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+/* Prevent layout shifts */
+[data-typing-area] {
+  min-height: 4rem;
+  contain: layout;
+}
+
+/* Smooth transitions for word changes */
+.word-transition {
+  transition: all 0.1s ease-out;
 }

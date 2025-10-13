@@ -1,0 +1,22 @@
+{
+  "name": "TypeFast - Typing Speed Test",
+  "short_name": "TypeFast",
+  "description": "Test your typing speed with TypeFast - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#e5e5e5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "education", "utilities"],
+  "lang": "en",
+  "scope": "/",
+  "id": "typefast-typing-test"
+}
