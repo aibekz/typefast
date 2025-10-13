@@ -167,7 +167,7 @@ export const useTypingTest = (duration: number = 60) => {
 
       // Clear incorrect chars when input is empty
       if (value.length === 0) {
-        const currentWordIncorrectChars = new Set();
+        const currentWordIncorrectChars = new Set<string>();
         for (const key of incorrectChars) {
           if (!key.startsWith(`${currentWordIndex}-`)) {
             currentWordIncorrectChars.add(key);
