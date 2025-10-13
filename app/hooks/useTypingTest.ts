@@ -21,6 +21,14 @@ export const useTypingTest = (duration: number = 60) => {
   const [correctChars, setCorrectChars] = useState(0);
   const [totalChars, setTotalChars] = useState(0);
   const [incorrectChars, setIncorrectChars] = useState<Set<string>>(new Set());
+  
+  // Cumulative statistics across all words
+  const [cumulativeCorrectChars, setCumulativeCorrectChars] = useState(0);
+  const [cumulativeTotalChars, setCumulativeTotalChars] = useState(0);
+  
+  // Total statistics for WPM calculation (includes current word)
+  const [totalTypedCorrectChars, setTotalTypedCorrectChars] = useState(0);
+  const [totalTypedTotalChars, setTotalTypedTotalChars] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,6 +62,10 @@ export const useTypingTest = (duration: number = 60) => {
     setCurrentWordIndex(0);
     setCorrectChars(0);
     setTotalChars(0);
+    setCumulativeCorrectChars(0);
+    setCumulativeTotalChars(0);
+    setTotalTypedCorrectChars(0);
+    setTotalTypedTotalChars(0);
     setTimeElapsed(0);
     setTimeRemaining(duration);
     setIsTestComplete(false);
@@ -84,6 +96,10 @@ export const useTypingTest = (duration: number = 60) => {
         setTimeRemaining(duration);
         setCorrectChars(0);
         setTotalChars(0);
+        setCumulativeCorrectChars(0);
+        setCumulativeTotalChars(0);
+        setTotalTypedCorrectChars(0);
+        setTotalTypedTotalChars(0);
         setIsTestComplete(false);
       }
 
@@ -188,6 +204,10 @@ export const useTypingTest = (duration: number = 60) => {
         }
       }
       setCorrectChars(correctCount);
+      
+      // Update total typed characters for WPM calculation
+      setTotalTypedCorrectChars(cumulativeCorrectChars + correctCount);
+      setTotalTypedTotalChars(cumulativeTotalChars + value.length);
     },
     [
       isTestActive,
@@ -215,16 +235,25 @@ export const useTypingTest = (duration: number = 60) => {
 
         // Only allow space to move to next word if current word is complete
         if (input.length >= words[currentWordIndex]?.text.length) {
+          // Accumulate statistics for the completed word
+          setCumulativeCorrectChars(prev => prev + correctChars);
+          setCumulativeTotalChars(prev => prev + totalChars);
+          
           const nextWordIndex = currentWordIndex + 1;
 
           // Replace words if we've completed all 25
           if (nextWordIndex === 25) {
             generateWords();
             setCurrentWordIndex(0);
+            // Clear incorrect characters for the new word set
+            setIncorrectChars(new Set());
           } else {
             setCurrentWordIndex(nextWordIndex);
           }
 
+          // Reset current word statistics
+          setCorrectChars(0);
+          setTotalChars(0);
           setInput("");
         }
         // If word is not complete, do nothing (spacebar is ignored)
@@ -317,10 +346,10 @@ export const useTypingTest = (duration: number = 60) => {
     };
   }, [isTestActive, startTime, duration, endTest]);
 
-  // Calculate current stats
+  // Calculate current stats using total typed characters for consistent WPM
   const stats: TypingStats = calculateStats(
-    correctChars,
-    totalChars,
+    totalTypedCorrectChars,
+    totalTypedTotalChars,
     timeElapsed,
   );
 
