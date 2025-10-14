@@ -16,6 +16,7 @@ export default function TypingTest() {
     input,
     isTestActive,
     isTestComplete,
+    isLoadingWords,
     timeElapsed,
     timeRemaining,
     stats,
@@ -61,19 +62,27 @@ export default function TypingTest() {
         />
       )}
 
-      {!isTestComplete && (
-        <TypingArea
-          words={words}
-          currentWordIndex={currentWordIndex}
-          input={input}
-          incorrectChars={incorrectChars}
-          inputRef={inputRef as React.RefObject<HTMLInputElement>}
-          onContainerClick={handleContainerClick}
-          onInputChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onKeyPress={handleKeyPress}
-        />
-      )}
+      {!isTestComplete &&
+        (isLoadingWords ? (
+          <div className="min-h-screen bg-[var(--bg-dark)] text-[var(--fg-light)] flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--fg-accent)] mx-auto mb-4"></div>
+              <p className="text-[var(--fg-muted)]">Loading words...</p>
+            </div>
+          </div>
+        ) : (
+          <TypingArea
+            words={words}
+            currentWordIndex={currentWordIndex}
+            input={input}
+            incorrectChars={incorrectChars}
+            inputRef={inputRef as React.RefObject<HTMLInputElement>}
+            onContainerClick={handleContainerClick}
+            onInputChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onKeyPress={handleKeyPress}
+          />
+        ))}
 
       <Footer />
     </div>

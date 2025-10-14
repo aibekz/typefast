@@ -8,7 +8,8 @@ export const calculateStats = (
   totalChars: number,
   timeElapsed: number,
 ): TypingStats => {
-  const wpm = timeElapsed > 0 ? Math.round((correctChars / 5) * (60 / timeElapsed)) : 0;
+  const wpm =
+    timeElapsed > 0 ? Math.round((correctChars / 5) * (60 / timeElapsed)) : 0;
   const accuracy =
     totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
   const incorrectChars = totalChars - correctChars;

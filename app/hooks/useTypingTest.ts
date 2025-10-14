@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { wordList } from "../lib/wordList";
+import { loadWordList } from "../lib/wordLoader";
 import type { TypingStats, Word } from "../types";
 import { calculateStats } from "../utils/calculateStats";
 import { formatTime } from "../utils/formatTime";
@@ -11,6 +11,7 @@ export const useTypingTest = (duration: number = 60) => {
   const [input, setInput] = useState("");
   const [isTestActive, setIsTestActive] = useState(false);
   const [isTestComplete, setIsTestComplete] = useState(false);
+  const [isLoadingWords, setIsLoadingWords] = useState(true);
 
   // Timer state
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -21,11 +22,11 @@ export const useTypingTest = (duration: number = 60) => {
   const [correctChars, setCorrectChars] = useState(0);
   const [totalChars, setTotalChars] = useState(0);
   const [incorrectChars, setIncorrectChars] = useState<Set<string>>(new Set());
-  
+
   // Cumulative statistics across all words
   const [cumulativeCorrectChars, setCumulativeCorrectChars] = useState(0);
   const [cumulativeTotalChars, setCumulativeTotalChars] = useState(0);
-  
+
   // Total statistics for WPM calculation (includes current word)
   const [totalTypedCorrectChars, setTotalTypedCorrectChars] = useState(0);
   const [totalTypedTotalChars, setTotalTypedTotalChars] = useState(0);
@@ -34,16 +35,27 @@ export const useTypingTest = (duration: number = 60) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ===== WORD GENERATION =====
-  const generateWords = useCallback(() => {
-    const newWords: Word[] = [];
-    for (let i = 0; i < 25; i++) {
-      const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
-      newWords.push({
-        text: randomWord,
-        status: "pending",
-      });
+  const generateWords = useCallback(async () => {
+    setIsLoadingWords(true);
+    try {
+      const wordList = await loadWordList();
+      const newWords: Word[] = [];
+      for (let i = 0; i < 25; i++) {
+        const randomWord =
+          wordList[Math.floor(Math.random() * wordList.length)];
+        newWords.push({
+          text: randomWord,
+          status: "pending",
+        });
+      }
+      setWords(newWords);
+    } catch (error) {
+      console.error("Error generating words:", error);
+      // Fallback to empty array if word loading fails
+      setWords([]);
+    } finally {
+      setIsLoadingWords(false);
     }
-    setWords(newWords);
   }, []);
 
   // ===== TEST CONTROL =====
@@ -70,6 +82,7 @@ export const useTypingTest = (duration: number = 60) => {
     setTimeRemaining(duration);
     setIsTestComplete(false);
     setIncorrectChars(new Set());
+    setIsLoadingWords(true);
     generateWords();
   }, [duration, generateWords]);
 
@@ -204,7 +217,7 @@ export const useTypingTest = (duration: number = 60) => {
         }
       }
       setCorrectChars(correctCount);
-      
+
       // Update total typed characters for WPM calculation
       setTotalTypedCorrectChars(cumulativeCorrectChars + correctCount);
       setTotalTypedTotalChars(cumulativeTotalChars + value.length);
@@ -218,6 +231,8 @@ export const useTypingTest = (duration: number = 60) => {
       input,
       incorrectChars,
       duration,
+      cumulativeCorrectChars,
+      cumulativeTotalChars,
     ],
   );
 
@@ -236,9 +251,9 @@ export const useTypingTest = (duration: number = 60) => {
         // Only allow space to move to next word if current word is complete
         if (input.length >= words[currentWordIndex]?.text.length) {
           // Accumulate statistics for the completed word
-          setCumulativeCorrectChars(prev => prev + correctChars);
-          setCumulativeTotalChars(prev => prev + totalChars);
-          
+          setCumulativeCorrectChars((prev) => prev + correctChars);
+          setCumulativeTotalChars((prev) => prev + totalChars);
+
           const nextWordIndex = currentWordIndex + 1;
 
           // Replace words if we've completed all 25
@@ -281,6 +296,8 @@ export const useTypingTest = (duration: number = 60) => {
       input,
       generateWords,
       words,
+      correctChars,
+      totalChars,
     ],
   );
 
@@ -360,6 +377,7 @@ export const useTypingTest = (duration: number = 60) => {
     input,
     isTestActive,
     isTestComplete,
+    isLoadingWords,
     timeElapsed,
     timeRemaining,
     stats,

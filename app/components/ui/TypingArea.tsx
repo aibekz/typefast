@@ -25,15 +25,21 @@ export default function TypingArea({
 }: TypingAreaProps) {
   return (
     <main className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-3 sm:px-4">
-      <div
-        className="w-full max-w-4xl mb-6 sm:mb-8 relative cursor-text"
+      <button
+        type="button"
+        className="w-full max-w-4xl mb-6 sm:mb-8 relative cursor-text bg-transparent border-none p-0"
         onClick={onContainerClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            onContainerClick();
+          }
+        }}
         data-typing-area
       >
         <div className="text-lg sm:text-xl md:text-2xl leading-relaxed text-center word-transition">
           {words.map((word, index) => (
             <span
-              key={index}
+              key={`word-${index}-${word.text}`}
               className={`inline-block mx-2 transition-colors duration-200 ${
                 index === currentWordIndex
                   ? "text-[var(--fg-accent)]"
@@ -42,9 +48,8 @@ export default function TypingArea({
                     : "text-[var(--fg-muted)] opacity-50"
               }`}
             >
-              {index === currentWordIndex ? (
-                <>
-                  {word.text.split("").map((char, charIndex) => {
+              {index === currentWordIndex
+                ? word.text.split("").map((char, charIndex) => {
                     const isTyped = charIndex < input.length;
                     const isCorrect =
                       isTyped &&
@@ -53,7 +58,7 @@ export default function TypingArea({
                     const _wasIncorrect = incorrectChars.has(charKey);
 
                     return (
-                      <span key={charIndex}>
+                      <span key={`char-${index}-${charIndex}-${char}`}>
                         {/* Cursor positioned at current typing position - before the character */}
                         {charIndex === input.length && (
                           <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] mr-0.5 animate-pulse"></span>
@@ -76,17 +81,14 @@ export default function TypingArea({
                           )}
                       </span>
                     );
-                  })}
-                </>
-              ) : (
-                <>
-                  {word.text.split("").map((char, charIndex) => {
+                  })
+                : word.text.split("").map((char, charIndex) => {
                     const charKey = `${index}-${charIndex}`;
                     const _wasIncorrect = incorrectChars.has(charKey);
 
                     return (
                       <span
-                        key={charIndex}
+                        key={`char-${index}-${charIndex}-${char}`}
                         className={`transition-colors duration-100 ${
                           _wasIncorrect
                             ? "text-red-400"
@@ -97,8 +99,6 @@ export default function TypingArea({
                       </span>
                     );
                   })}
-                </>
-              )}
             </span>
           ))}
         </div>
@@ -117,7 +117,7 @@ export default function TypingArea({
           autoCapitalize="off"
           spellCheck="false"
         />
-      </div>
+      </button>
     </main>
   );
 }

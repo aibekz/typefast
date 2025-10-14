@@ -1,1 +1,1 @@
-export { wordList } from "./wordList";
+export { getRandomWord, loadWordList } from "./wordLoader";
