@@ -31,53 +31,7 @@ body {
   min-height: 100vh;
 }
 
-/* Custom animations */
-@keyframes shake {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-2px);
-  }
-  75% {
-    transform: translateX(2px);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-}
-
-.shake {
-  animation: shake 0.3s ease-in-out;
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-.fade-out {
-  animation: fadeOut 0.3s ease-in-out;
-}
+/* Custom animations - only keep what's used */
 
 /* Prevent layout shifts */
 [data-typing-area] {

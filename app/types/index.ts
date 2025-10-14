@@ -12,10 +12,19 @@ export interface TypingStats {
   incorrectChars: number;
 }
 
-export interface TestState {
-  isActive: boolean;
-  isComplete: boolean;
+export interface TypingState {
+  words: Word[];
   currentWordIndex: number;
   input: string;
+  isActive: boolean;
+  isComplete: boolean;
+  isLoading: boolean;
   startTime: number | null;
+  timeElapsed: number;
+  timeRemaining: number;
+  stats: {
+    correctChars: number;
+    totalChars: number;
+    incorrectChars: Set<string>;
+  };
 }

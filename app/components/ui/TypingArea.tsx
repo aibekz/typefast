@@ -1,4 +1,3 @@
-import { memo, useMemo } from "react";
 import type { Word } from "../../types";
 
 interface TypingAreaProps {
@@ -16,36 +15,34 @@ interface TypingAreaProps {
   formatTime: (seconds: number) => string;
 }
 
-// Memoized component for individual word rendering
-const MemoizedWord = memo(
-  ({
-    word,
-    index,
-    currentWordIndex,
-    input,
-    incorrectChars,
-  }: {
-    word: Word;
-    index: number;
-    currentWordIndex: number;
-    input: string;
-    incorrectChars: Set<string>;
-  }) => {
-    const isCurrentWord = index === currentWordIndex;
-    const isCompletedWord = index < currentWordIndex;
+// Simplified word rendering component
+const WordComponent = ({
+  word,
+  index,
+  currentWordIndex,
+  input,
+  incorrectChars,
+}: {
+  word: Word;
+  index: number;
+  currentWordIndex: number;
+  input: string;
+  incorrectChars: Set<string>;
+}) => {
+  const isCurrentWord = index === currentWordIndex;
+  const isCompletedWord = index < currentWordIndex;
 
-    const wordContent = useMemo(() => {
-      if (isCurrentWord) {
-        return word.text.split("").map((char, charIndex) => {
+  if (isCurrentWord) {
+    return (
+      <span className="inline-block mx-2 text-[var(--fg-accent)]">
+        {word.text.split("").map((char, charIndex) => {
           const isTyped = charIndex < input.length;
-          const isCorrect =
-            isTyped && input[charIndex].toLowerCase() === char.toLowerCase();
+          const isCorrect = isTyped && input[charIndex].toLowerCase() === char.toLowerCase();
           const charKey = `${index}-${charIndex}`;
-          const _wasIncorrect = incorrectChars.has(charKey);
+          const wasIncorrect = incorrectChars.has(charKey);
 
           return (
             <span key={`char-${index}-${charIndex}-${char}`}>
-              {/* Cursor positioned at current typing position - before the character */}
               {charIndex === input.length && (
                 <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] mr-0.5 animate-pulse"></span>
               )}
@@ -60,53 +57,44 @@ const MemoizedWord = memo(
               >
                 {char}
               </span>
-              {/* Cursor at the end if word is complete */}
-              {charIndex === word.text.length - 1 &&
-                input.length === word.text.length && (
-                  <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
-                )}
+              {charIndex === word.text.length - 1 && input.length === word.text.length && (
+                <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
+              )}
             </span>
           );
-        });
-      } else {
-        return word.text.split("").map((char, charIndex) => {
-          const charKey = `${index}-${charIndex}`;
-          const _wasIncorrect = incorrectChars.has(charKey);
-
-          return (
-            <span
-              key={`char-${index}-${charIndex}-${char}`}
-              className={`transition-colors duration-100 ${
-                _wasIncorrect
-                  ? "text-red-400"
-                  : "text-[var(--fg-light)] opacity-60"
-              }`}
-            >
-              {char}
-            </span>
-          );
-        });
-      }
-    }, [word.text, index, input, incorrectChars, isCurrentWord]);
-
-    return (
-      <span
-        key={`word-${index}-${word.text}`}
-        className={`inline-block mx-2 transition-colors duration-200 ${
-          isCurrentWord
-            ? "text-[var(--fg-accent)]"
-            : isCompletedWord
-              ? "text-[var(--fg-light)] opacity-60"
-              : "text-[var(--fg-muted)] opacity-50"
-        }`}
-      >
-        {wordContent}
+        })}
       </span>
     );
-  },
-);
+  }
 
-MemoizedWord.displayName = "MemoizedWord";
+  return (
+    <span
+      className={`inline-block mx-2 transition-colors duration-200 ${
+        isCompletedWord
+          ? "text-[var(--fg-light)] opacity-60"
+          : "text-[var(--fg-muted)] opacity-50"
+      }`}
+    >
+      {word.text.split("").map((char, charIndex) => {
+        const charKey = `${index}-${charIndex}`;
+        const wasIncorrect = incorrectChars.has(charKey);
+
+        return (
+          <span
+            key={`char-${index}-${charIndex}-${char}`}
+            className={`transition-colors duration-100 ${
+              wasIncorrect
+                ? "text-red-400"
+                : "text-[var(--fg-light)] opacity-60"
+            }`}
+          >
+            {char}
+          </span>
+        );
+      })}
+    </span>
+  );
+};
 
 function TypingArea({
   words,
@@ -122,25 +110,14 @@ function TypingArea({
   timeRemaining,
   formatTime,
 }: TypingAreaProps) {
-  // Memoize the formatted time to prevent unnecessary recalculations
-  const formattedTime = useMemo(
-    () => formatTime(timeRemaining),
-    [formatTime, timeRemaining],
-  );
-
-  // Memoize the timer display class to prevent unnecessary re-renders
-  const timerClass = useMemo(
-    () =>
-      `mb-4 text-4xl font-mono transition-colors duration-200 ${
-        isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
-      }`,
-    [isTestActive],
-  );
-
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4">
       {/* Timer Counter - Always visible */}
-      <div className={timerClass}>{formattedTime}</div>
+      <div className={`mb-4 text-4xl font-mono transition-colors duration-200 ${
+        isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
+      }`}>
+        {formatTime(timeRemaining)}
+      </div>
 
       <button
         type="button"
@@ -155,7 +132,7 @@ function TypingArea({
       >
         <div className="text-lg sm:text-xl md:text-2xl leading-relaxed text-center word-transition">
           {words.map((word, index) => (
-            <MemoizedWord
+            <WordComponent
               key={`word-${index}-${word.text}`}
               word={word}
               index={index}
@@ -185,5 +162,4 @@ function TypingArea({
   );
 }
 
-// Memoize the main TypingArea component to prevent unnecessary re-renders
-export default memo(TypingArea);
+export default TypingArea;

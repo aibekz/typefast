@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ToolbarProps {
   duration: number;
@@ -26,37 +26,29 @@ function Toolbar({
     }
   }, [showCustomModal]);
 
-  // Memoize callback functions to prevent unnecessary re-renders
-  const handlePresetTime = useCallback(
-    (seconds: number) => {
-      onDurationChange(seconds - duration);
-    },
-    [onDurationChange, duration],
-  );
+  const handlePresetTime = (seconds: number) => {
+    onDurationChange(seconds - duration);
+  };
 
-  const handleCustomTime = useCallback(() => {
+  const handleCustomTime = () => {
     const seconds = parseInt(customTime, 10);
     if (seconds >= 5 && seconds <= 300) {
       onSetCustomDuration(seconds);
       setShowCustomModal(false);
       setCustomTime("");
     }
-  }, [customTime, onSetCustomDuration]);
+  };
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") {
-        handleCustomTime();
-      } else if (e.key === "Escape") {
-        setShowCustomModal(false);
-        setCustomTime("");
-      }
-    },
-    [handleCustomTime],
-  );
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleCustomTime();
+    } else if (e.key === "Escape") {
+      setShowCustomModal(false);
+      setCustomTime("");
+    }
+  };
 
-  // Memoize the duration presets to prevent unnecessary re-renders
-  const durationPresets = useMemo(() => [15, 20, 30, 60], []);
+  const durationPresets = [15, 20, 30, 60];
 
   return (
     <>
@@ -159,5 +151,4 @@ function Toolbar({
   );
 }
 
-// Memoize the Toolbar component to prevent unnecessary re-renders
-export default memo(Toolbar);
+export default Toolbar;

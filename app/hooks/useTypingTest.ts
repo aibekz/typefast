@@ -1,48 +1,43 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadWordList } from "../lib/wordLoader";
 import type { TypingStats, Word } from "../types";
 import { calculateStats } from "../utils/calculateStats";
-import { formatTime } from "../utils/formatTime";
+
+// Inline utility function
+const formatTime = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
 
 export const useTypingTest = (duration: number = 60) => {
-  // Test state
+  // Simplified state management
   const [words, setWords] = useState<Word[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [input, setInput] = useState("");
-  const [isTestActive, setIsTestActive] = useState(false);
-  const [isTestComplete, setIsTestComplete] = useState(false);
-  const [isLoadingWords, setIsLoadingWords] = useState(true);
-
-  // Timer state
+  const [isActive, setIsActive] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(duration);
-
-  // Statistics state
-  const [correctChars, setCorrectChars] = useState(0);
-  const [totalChars, setTotalChars] = useState(0);
-  const [incorrectChars, setIncorrectChars] = useState<Set<string>>(new Set());
-
-  // Cumulative statistics across all words
-  const [cumulativeCorrectChars, setCumulativeCorrectChars] = useState(0);
-  const [cumulativeTotalChars, setCumulativeTotalChars] = useState(0);
-
-  // Total statistics for WPM calculation (includes current word)
-  const [totalTypedCorrectChars, setTotalTypedCorrectChars] = useState(0);
-  const [totalTypedTotalChars, setTotalTypedTotalChars] = useState(0);
+  const [stats, setStats] = useState({
+    correctChars: 0,
+    totalChars: 0,
+    incorrectChars: new Set<string>(),
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ===== WORD GENERATION =====
-  const generateWords = useCallback(async () => {
-    setIsLoadingWords(true);
+  const generateWords = async () => {
+    setIsLoading(true);
     try {
       const wordList = await loadWordList();
       const newWords: Word[] = [];
       for (let i = 0; i < 25; i++) {
-        const randomWord =
-          wordList[Math.floor(Math.random() * wordList.length)];
+        const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
         newWords.push({
           text: randomWord,
           status: "pending",
@@ -51,287 +46,141 @@ export const useTypingTest = (duration: number = 60) => {
       setWords(newWords);
     } catch (error) {
       console.error("Error generating words:", error);
-      // Fallback to empty array if word loading fails
       setWords([]);
     } finally {
-      setIsLoadingWords(false);
+      setIsLoading(false);
     }
-  }, []);
+  };
 
   // ===== TEST CONTROL =====
-  const endTest = useCallback(() => {
+  const endTest = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-    setIsTestActive(false);
-    setIsTestComplete(true);
-  }, []);
+    setIsActive(false);
+    setIsComplete(true);
+  };
 
-  const resetTest = useCallback(() => {
-    setIsTestActive(false);
+  const resetTest = () => {
+    setIsActive(false);
     setStartTime(null);
     setInput("");
     setCurrentWordIndex(0);
-    setCorrectChars(0);
-    setTotalChars(0);
-    setCumulativeCorrectChars(0);
-    setCumulativeTotalChars(0);
-    setTotalTypedCorrectChars(0);
-    setTotalTypedTotalChars(0);
+    setStats({
+      correctChars: 0,
+      totalChars: 0,
+      incorrectChars: new Set<string>(),
+    });
     setTimeElapsed(0);
     setTimeRemaining(duration);
-    setIsTestComplete(false);
-    setIncorrectChars(new Set());
-    setIsLoadingWords(true);
+    setIsComplete(false);
+    setIsLoading(true);
     generateWords();
-  }, [duration, generateWords]);
+  };
 
   // ===== FOCUS MANAGEMENT =====
-  const handleContainerClick = useCallback(() => {
-    if (inputRef.current && !isTestComplete && timeRemaining > 0) {
+  const handleContainerClick = () => {
+    if (inputRef.current && !isComplete && timeRemaining > 0) {
       inputRef.current.focus();
     }
-  }, [isTestComplete, timeRemaining]);
+  };
 
   // Auto-focus input when test is ready
   useEffect(() => {
-    if (
-      !isLoadingWords &&
-      !isTestComplete &&
-      timeRemaining > 0 &&
-      inputRef.current
-    ) {
-      // Small delay to ensure DOM is ready
+    if (!isLoading && !isComplete && timeRemaining > 0 && inputRef.current) {
       const timer = setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [isLoadingWords, isTestComplete, timeRemaining]);
+  }, [isLoading, isComplete, timeRemaining]);
 
   // ===== INPUT HANDLING =====
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (isTestComplete || timeRemaining <= 0) {
-        return;
-      }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isComplete || timeRemaining <= 0) return;
 
-      const value = e.target.value;
+    const value = e.target.value;
+    const currentWord = words[currentWordIndex];
 
-      // Start test on first keystroke
-      if (!isTestActive && value.length > 0) {
-        setIsTestActive(true);
-        setStartTime(Date.now());
-        setTimeRemaining(duration);
-        setCorrectChars(0);
-        setTotalChars(0);
-        setCumulativeCorrectChars(0);
-        setCumulativeTotalChars(0);
-        setTotalTypedCorrectChars(0);
-        setTotalTypedTotalChars(0);
-        setIsTestComplete(false);
-      }
+    // Start test on first keystroke
+    if (!isActive && value.length > 0) {
+      setIsActive(true);
+      setStartTime(Date.now());
+    }
 
-      // Always allow backspace (deletion) regardless of word completion - CHECK FIRST
-      // This includes deletion of spaces and any other characters
-      if (value.length < input.length) {
-        setInput(value);
-        setTotalChars(value.length);
+    // Block input if word is complete
+    if (value.length > currentWord?.text.length) return;
 
-        // Update incorrect characters when deleting (including spaces)
-        const newIncorrectChars = new Set(incorrectChars);
-        for (let i = value.length; i < input.length; i++) {
-          const charKey = `${currentWordIndex}-${i}`;
-          newIncorrectChars.delete(charKey);
-        }
-        setIncorrectChars(newIncorrectChars);
+    setInput(value);
 
-        // Update correct characters count
-        let correctCount = 0;
-        for (let i = 0; i < value.length; i++) {
-          if (
-            i < words[currentWordIndex]?.text.length &&
-            value[i].toLowerCase() ===
-              words[currentWordIndex].text[i].toLowerCase()
-          ) {
-            correctCount++;
-          }
-        }
-        setCorrectChars(correctCount);
-        return;
-      }
-
-      // Handle backspace when input is empty (go back to previous word)
-      // This covers cases where user is at beginning of new word and tries to delete
-      if (value.length === 0 && currentWordIndex > 0) {
-        const prevWordIndex = currentWordIndex - 1;
-        const prevWord = words[prevWordIndex];
-        setCurrentWordIndex(prevWordIndex);
-        setInput(prevWord?.text || "");
-        setTotalChars(prevWord?.text.length || 0);
-
-        // Update correct characters count for previous word
-        let correctCount = 0;
-        for (let i = 0; i < (prevWord?.text.length || 0); i++) {
-          // This is always true since we're comparing the same character to itself
-          // This logic should be updated to compare with the actual typed input
+    // Calculate correct characters for current word
+    let correctCount = 0;
+    const newIncorrectChars = new Set(stats.incorrectChars);
+    
+    for (let i = 0; i < value.length; i++) {
+      if (i < currentWord?.text.length) {
+        const isCorrect = value[i].toLowerCase() === currentWord.text[i].toLowerCase();
+        if (isCorrect) {
           correctCount++;
-        }
-        setCorrectChars(correctCount);
-        return;
-      }
-
-      // Block input if word is complete (but deletion is handled above)
-      if (
-        input.length >= words[currentWordIndex]?.text.length &&
-        value.length > input.length
-      ) {
-        return;
-      }
-
-      setInput(value);
-      setTotalChars(value.length);
-
-      // Track incorrect characters (spaces are always considered incorrect in word context)
-      const newIncorrectChars = new Set(incorrectChars);
-      for (let i = 0; i < value.length; i++) {
-        if (
-          i < words[currentWordIndex]?.text.length &&
-          value[i].toLowerCase() !==
-            words[currentWordIndex].text[i].toLowerCase()
-        ) {
-          const charKey = `${currentWordIndex}-${i}`;
-          newIncorrectChars.add(charKey);
-        } else if (i >= words[currentWordIndex]?.text.length) {
-          // Any character beyond the word length (including spaces) is incorrect
-          const charKey = `${currentWordIndex}-${i}`;
-          newIncorrectChars.add(charKey);
+        } else {
+          newIncorrectChars.add(`${currentWordIndex}-${i}`);
         }
       }
-      setIncorrectChars(newIncorrectChars);
+    }
 
-      // Clear incorrect chars when input is empty
-      if (value.length === 0) {
-        const currentWordIncorrectChars = new Set<string>();
-        for (const key of incorrectChars) {
-          if (!key.startsWith(`${currentWordIndex}-`)) {
-            currentWordIncorrectChars.add(key);
-          }
-        }
-        setIncorrectChars(currentWordIncorrectChars);
-      }
-
-      // Update correct characters count
-      let correctCount = 0;
-      for (let i = 0; i < value.length; i++) {
-        if (
-          i < words[currentWordIndex]?.text.length &&
-          value[i].toLowerCase() ===
-            words[currentWordIndex].text[i].toLowerCase()
-        ) {
-          correctCount++;
-        }
-      }
-      setCorrectChars(correctCount);
-
-      // Update total typed characters for WPM calculation
-      setTotalTypedCorrectChars(cumulativeCorrectChars + correctCount);
-      setTotalTypedTotalChars(cumulativeTotalChars + value.length);
-    },
-    [
-      isTestActive,
-      isTestComplete,
-      timeRemaining,
-      words,
-      currentWordIndex,
-      input,
-      incorrectChars,
-      duration,
-      cumulativeCorrectChars,
-      cumulativeTotalChars,
-    ],
-  );
+    // Update stats
+    setStats(prev => ({
+      ...prev,
+      correctChars: correctCount,
+      totalChars: value.length,
+      incorrectChars: newIncorrectChars,
+    }));
+  };
 
   // ===== KEYBOARD HANDLING =====
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (isTestComplete || timeRemaining <= 0) {
-        e.preventDefault();
-        return;
-      }
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isComplete || timeRemaining <= 0) {
+      e.preventDefault();
+      return;
+    }
 
-      if (e.key === " ") {
-        e.preventDefault();
-        e.stopPropagation();
-
-        // Only allow space to move to next word if current word is complete
-        if (input.length >= words[currentWordIndex]?.text.length) {
-          // Accumulate statistics for the completed word
-          setCumulativeCorrectChars((prev) => prev + correctChars);
-          setCumulativeTotalChars((prev) => prev + totalChars);
-
-          const nextWordIndex = currentWordIndex + 1;
-
-          // Replace words if we've completed all 25
-          if (nextWordIndex === 25) {
-            generateWords();
-            setCurrentWordIndex(0);
-            // Clear incorrect characters for the new word set
-            setIncorrectChars(new Set());
-          } else {
-            setCurrentWordIndex(nextWordIndex);
-          }
-
-          // Reset current word statistics
-          setCorrectChars(0);
-          setTotalChars(0);
-          setInput("");
+    if (e.key === " ") {
+      e.preventDefault();
+      
+      // Only allow space to move to next word if current word is complete
+      if (input.length >= words[currentWordIndex]?.text.length) {
+        const nextWordIndex = currentWordIndex + 1;
+        
+        // Replace words if we've completed all 25
+        if (nextWordIndex === 25) {
+          generateWords();
+          setCurrentWordIndex(0);
+        } else {
+          setCurrentWordIndex(nextWordIndex);
         }
-        // If word is not complete, do nothing (spacebar is ignored)
+        
+        setInput("");
+        setStats(prev => ({
+          ...prev,
+          correctChars: 0,
+          totalChars: 0,
+          incorrectChars: new Set(),
+        }));
       }
+    }
+  };
 
-      if (e.key === "Backspace") {
-        // Allow deletion of any character (correct or incorrect)
-        const newIncorrectChars = new Set(incorrectChars);
-        const charKey = `${currentWordIndex}-${input.length - 1}`;
-        newIncorrectChars.delete(charKey);
-        setIncorrectChars(newIncorrectChars);
-
-        // Allow going back to previous word if current word is empty or has only 1 character
-        if (input.length <= 1 && currentWordIndex > 0) {
-          setCurrentWordIndex(currentWordIndex - 1);
-          setInput(words[currentWordIndex - 1]?.text || "");
-        }
-      }
-    },
-    [
-      isTestComplete,
-      timeRemaining,
-      incorrectChars,
-      currentWordIndex,
-      input,
-      generateWords,
-      words,
-      correctChars,
-      totalChars,
-    ],
-  );
-
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (isTestComplete || timeRemaining <= 0) {
-        e.preventDefault();
-        return;
-      }
-      // Spacebar logic moved to handleKeyDown for better reliability
-    },
-    [isTestComplete, timeRemaining],
-  );
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isComplete || timeRemaining <= 0) {
+      e.preventDefault();
+      return;
+    }
+  };
 
   // ===== EFFECTS =====
   useEffect(() => {
     generateWords();
-  }, [generateWords]);
+  }, []);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -344,7 +193,7 @@ export const useTypingTest = (duration: number = 60) => {
       const target = e.target as HTMLElement;
       if (
         !target.closest("[data-typing-area]") &&
-        !isTestComplete &&
+        !isComplete &&
         timeRemaining > 0
       ) {
         if (inputRef.current) {
@@ -355,10 +204,10 @@ export const useTypingTest = (duration: number = 60) => {
 
     document.addEventListener("click", handleGlobalClick);
     return () => document.removeEventListener("click", handleGlobalClick);
-  }, [isTestComplete, timeRemaining]);
+  }, [isComplete, timeRemaining]);
 
   useEffect(() => {
-    if (isTestActive && startTime) {
+    if (isActive && startTime) {
       timerRef.current = setInterval(() => {
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         const remaining = Math.max(0, duration - elapsed);
@@ -369,7 +218,7 @@ export const useTypingTest = (duration: number = 60) => {
         if (remaining <= 0) {
           endTest();
         }
-      }, 100);
+      }, 1000); // Optimized from 100ms to 1000ms
     }
 
     return () => {
@@ -377,13 +226,13 @@ export const useTypingTest = (duration: number = 60) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [isTestActive, startTime, duration, endTest]);
+  }, [isActive, startTime, duration]);
 
-  // Memoize stats calculation to prevent unnecessary recalculations
-  const stats: TypingStats = useMemo(
-    () =>
-      calculateStats(totalTypedCorrectChars, totalTypedTotalChars, timeElapsed),
-    [totalTypedCorrectChars, totalTypedTotalChars, timeElapsed],
+  // Calculate final stats
+  const finalStats: TypingStats = calculateStats(
+    stats.correctChars,
+    stats.totalChars,
+    timeElapsed
   );
 
   return {
@@ -391,13 +240,13 @@ export const useTypingTest = (duration: number = 60) => {
     words,
     currentWordIndex,
     input,
-    isTestActive,
-    isTestComplete,
-    isLoadingWords,
+    isActive,
+    isComplete,
+    isLoading,
     timeElapsed,
     timeRemaining,
-    stats,
-    incorrectChars,
+    stats: finalStats,
+    incorrectChars: stats.incorrectChars,
 
     // Refs
     inputRef,
@@ -410,6 +259,6 @@ export const useTypingTest = (duration: number = 60) => {
     handleContainerClick,
 
     // Utils
-    formatTime: (seconds: number) => formatTime(seconds),
+    formatTime,
   };
 };

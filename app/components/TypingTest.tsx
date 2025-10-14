@@ -1,9 +1,8 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTypingTest } from "../hooks/useTypingTest";
-import Footer from "./ui/Footer";
-import Header from "./ui/Header";
+import Layout from "./ui/Layout";
 import Results from "./ui/Results";
 import Toolbar from "./ui/Toolbar";
 import TypingArea from "./ui/TypingArea";
@@ -15,9 +14,9 @@ function TypingTest() {
     words,
     currentWordIndex,
     input,
-    isTestActive,
-    isTestComplete,
-    isLoadingWords,
+    isActive,
+    isComplete,
+    isLoading,
     timeElapsed,
     timeRemaining,
     stats,
@@ -31,97 +30,68 @@ function TypingTest() {
     formatTime,
   } = useTypingTest(duration);
 
-  // Memoize duration adjustment functions
-  const adjustDuration = useCallback(
-    (delta: number) => {
-      const newDuration = Math.max(5, Math.min(300, duration + delta));
-      setDuration(newDuration);
-      resetTest();
-    },
-    [duration, resetTest],
-  );
+  const adjustDuration = (delta: number) => {
+    const newDuration = Math.max(5, Math.min(300, duration + delta));
+    setDuration(newDuration);
+    resetTest();
+  };
 
-  const setCustomDuration = useCallback((newDuration: number) => {
+  const setCustomDuration = (newDuration: number) => {
     const clampedDuration = Math.max(5, Math.min(300, newDuration));
     setDuration(clampedDuration);
-  }, []);
-
-  // Memoize the loading state to prevent unnecessary re-renders
-  const loadingContent = useMemo(
-    () => (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--fg-accent)] mx-auto mb-4"></div>
-          <p className="text-[var(--fg-muted)]">Loading words...</p>
-        </div>
-      </div>
-    ),
-    [],
-  );
-
-  // Memoize the results content to prevent unnecessary re-renders
-  const resultsContent = useMemo(
-    () => (
-      <div className="flex-1 flex items-center justify-center">
-        <Results
-          stats={stats}
-          timeElapsed={timeElapsed}
-          formatTime={formatTime}
-          onRestart={resetTest}
-        />
-      </div>
-    ),
-    [stats, timeElapsed, formatTime, resetTest],
-  );
+  };
 
   // Reset test when duration changes
   useEffect(() => {
     resetTest();
-  }, [resetTest]);
+  }, [duration]);
 
   return (
-    <div className="h-screen bg-[var(--bg-dark)] text-[var(--fg-light)] font-sans flex flex-col">
-      {/* SEO Heading - Hidden but accessible to screen readers */}
-      <h1 className="sr-only">TypeFast - Test Your Typing Speed</h1>
-      <Header />
-
-      <div className="flex-1 flex flex-col min-h-0">
-        {isTestComplete ? (
-          resultsContent
-        ) : isLoadingWords ? (
-          loadingContent
-        ) : (
-          <>
-            <Toolbar
-              duration={duration}
-              onDurationChange={adjustDuration}
-              onSetCustomDuration={setCustomDuration}
-              onReset={resetTest}
+    <Layout>
+      {isComplete ? (
+        <div className="flex-1 flex items-center justify-center">
+          <Results
+            stats={stats}
+            timeElapsed={timeElapsed}
+            formatTime={formatTime}
+            onRestart={resetTest}
+          />
+        </div>
+      ) : isLoading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--fg-accent)] mx-auto mb-4"></div>
+            <p className="text-[var(--fg-muted)]">Loading words...</p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <Toolbar
+            duration={duration}
+            onDurationChange={adjustDuration}
+            onSetCustomDuration={setCustomDuration}
+            onReset={resetTest}
+          />
+          <div className="flex-1 flex items-center justify-center">
+            <TypingArea
+              words={words}
+              currentWordIndex={currentWordIndex}
+              input={input}
+              incorrectChars={incorrectChars}
+              inputRef={inputRef as React.RefObject<HTMLInputElement>}
+              onContainerClick={handleContainerClick}
+              onInputChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onKeyPress={handleKeyPress}
+              isTestActive={isActive}
+              timeRemaining={timeRemaining}
+              formatTime={formatTime}
             />
-            <div className="flex-1 flex items-center justify-center">
-              <TypingArea
-                words={words}
-                currentWordIndex={currentWordIndex}
-                input={input}
-                incorrectChars={incorrectChars}
-                inputRef={inputRef as React.RefObject<HTMLInputElement>}
-                onContainerClick={handleContainerClick}
-                onInputChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onKeyPress={handleKeyPress}
-                isTestActive={isTestActive}
-                timeRemaining={timeRemaining}
-                formatTime={formatTime}
-              />
-            </div>
-          </>
-        )}
-      </div>
-
-      <Footer />
-    </div>
+          </div>
+        </>
+      )}
+    </Layout>
   );
 }
 
-// Memoize the main TypingTest component to prevent unnecessary re-renders
-export default memo(TypingTest);
+export default TypingTest;
