@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import type { TypingStats } from "../../types";
 
 interface ResultsProps {
@@ -7,12 +8,19 @@ interface ResultsProps {
   onRestart: () => void;
 }
 
-export default function Results({
-  stats,
-  timeElapsed,
-  formatTime,
-  onRestart,
-}: ResultsProps) {
+function Results({ stats, timeElapsed, formatTime, onRestart }: ResultsProps) {
+  // Memoize formatted time to prevent unnecessary recalculations
+  const formattedTime = useMemo(
+    () => formatTime(timeElapsed),
+    [formatTime, timeElapsed],
+  );
+
+  // Memoize overall accuracy calculation
+  const overallAccuracy = useMemo(
+    () => Math.round((stats.correctChars / stats.totalChars) * 100) || 0,
+    [stats.correctChars, stats.totalChars],
+  );
+
   return (
     <div className="fixed inset-0 bg-[var(--bg-dark)] bg-opacity-95 z-50 overflow-y-auto">
       <div className="min-h-full flex items-center justify-center p-4">
@@ -58,7 +66,7 @@ export default function Results({
             {/* Time */}
             <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-2 sm:p-4 lg:p-6 text-center">
               <div className="text-xl sm:text-3xl lg:text-4xl font-bold text-[var(--fg-accent)] mb-1 sm:mb-2">
-                {formatTime(timeElapsed)}
+                {formattedTime}
               </div>
               <div className="text-xs sm:text-base lg:text-lg text-[var(--fg-light)] mb-1">
                 TIME
@@ -100,8 +108,7 @@ export default function Results({
 
             <div className="text-center">
               <div className="text-xl sm:text-2xl font-bold text-[var(--fg-accent)] mb-1">
-                {Math.round((stats.correctChars / stats.totalChars) * 100) || 0}
-                %
+                {overallAccuracy}%
               </div>
               <div className="text-xs sm:text-sm text-[var(--fg-muted)]">
                 Overall Accuracy
@@ -132,3 +139,6 @@ export default function Results({
     </div>
   );
 }
+
+// Memoize the Results component to prevent unnecessary re-renders
+export default memo(Results);

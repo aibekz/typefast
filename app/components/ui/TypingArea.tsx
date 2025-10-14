@@ -1,3 +1,4 @@
+import { memo, useMemo } from "react";
 import type { Word } from "../../types";
 
 interface TypingAreaProps {
@@ -15,7 +16,99 @@ interface TypingAreaProps {
   formatTime: (seconds: number) => string;
 }
 
-export default function TypingArea({
+// Memoized component for individual word rendering
+const MemoizedWord = memo(
+  ({
+    word,
+    index,
+    currentWordIndex,
+    input,
+    incorrectChars,
+  }: {
+    word: Word;
+    index: number;
+    currentWordIndex: number;
+    input: string;
+    incorrectChars: Set<string>;
+  }) => {
+    const isCurrentWord = index === currentWordIndex;
+    const isCompletedWord = index < currentWordIndex;
+
+    const wordContent = useMemo(() => {
+      if (isCurrentWord) {
+        return word.text.split("").map((char, charIndex) => {
+          const isTyped = charIndex < input.length;
+          const isCorrect =
+            isTyped && input[charIndex].toLowerCase() === char.toLowerCase();
+          const charKey = `${index}-${charIndex}`;
+          const _wasIncorrect = incorrectChars.has(charKey);
+
+          return (
+            <span key={`char-${index}-${charIndex}-${char}`}>
+              {/* Cursor positioned at current typing position - before the character */}
+              {charIndex === input.length && (
+                <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] mr-0.5 animate-pulse"></span>
+              )}
+              <span
+                className={`transition-colors duration-100 ${
+                  isTyped
+                    ? isCorrect
+                      ? "text-[var(--fg-accent)]"
+                      : "text-red-400"
+                    : "text-[var(--fg-muted)] opacity-50"
+                }`}
+              >
+                {char}
+              </span>
+              {/* Cursor at the end if word is complete */}
+              {charIndex === word.text.length - 1 &&
+                input.length === word.text.length && (
+                  <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
+                )}
+            </span>
+          );
+        });
+      } else {
+        return word.text.split("").map((char, charIndex) => {
+          const charKey = `${index}-${charIndex}`;
+          const _wasIncorrect = incorrectChars.has(charKey);
+
+          return (
+            <span
+              key={`char-${index}-${charIndex}-${char}`}
+              className={`transition-colors duration-100 ${
+                _wasIncorrect
+                  ? "text-red-400"
+                  : "text-[var(--fg-light)] opacity-60"
+              }`}
+            >
+              {char}
+            </span>
+          );
+        });
+      }
+    }, [word.text, index, input, incorrectChars, isCurrentWord]);
+
+    return (
+      <span
+        key={`word-${index}-${word.text}`}
+        className={`inline-block mx-2 transition-colors duration-200 ${
+          isCurrentWord
+            ? "text-[var(--fg-accent)]"
+            : isCompletedWord
+              ? "text-[var(--fg-light)] opacity-60"
+              : "text-[var(--fg-muted)] opacity-50"
+        }`}
+      >
+        {wordContent}
+      </span>
+    );
+  },
+);
+
+MemoizedWord.displayName = "MemoizedWord";
+
+function TypingArea({
   words,
   currentWordIndex,
   input,
@@ -29,16 +122,25 @@ export default function TypingArea({
   timeRemaining,
   formatTime,
 }: TypingAreaProps) {
+  // Memoize the formatted time to prevent unnecessary recalculations
+  const formattedTime = useMemo(
+    () => formatTime(timeRemaining),
+    [formatTime, timeRemaining],
+  );
+
+  // Memoize the timer display class to prevent unnecessary re-renders
+  const timerClass = useMemo(
+    () =>
+      `mb-4 text-4xl font-mono transition-colors duration-200 ${
+        isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
+      }`,
+    [isTestActive],
+  );
+
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4">
       {/* Timer Counter - Always visible */}
-      <div
-        className={`mb-4 text-4xl font-mono transition-colors duration-200 ${
-          isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
-        }`}
-      >
-        {formatTime(timeRemaining)}
-      </div>
+      <div className={timerClass}>{formattedTime}</div>
 
       <button
         type="button"
@@ -53,68 +155,14 @@ export default function TypingArea({
       >
         <div className="text-lg sm:text-xl md:text-2xl leading-relaxed text-center word-transition">
           {words.map((word, index) => (
-            <span
+            <MemoizedWord
               key={`word-${index}-${word.text}`}
-              className={`inline-block mx-2 transition-colors duration-200 ${
-                index === currentWordIndex
-                  ? "text-[var(--fg-accent)]"
-                  : index < currentWordIndex
-                    ? "text-[var(--fg-light)] opacity-60"
-                    : "text-[var(--fg-muted)] opacity-50"
-              }`}
-            >
-              {index === currentWordIndex
-                ? word.text.split("").map((char, charIndex) => {
-                    const isTyped = charIndex < input.length;
-                    const isCorrect =
-                      isTyped &&
-                      input[charIndex].toLowerCase() === char.toLowerCase();
-                    const charKey = `${index}-${charIndex}`;
-                    const _wasIncorrect = incorrectChars.has(charKey);
-
-                    return (
-                      <span key={`char-${index}-${charIndex}-${char}`}>
-                        {/* Cursor positioned at current typing position - before the character */}
-                        {charIndex === input.length && (
-                          <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] mr-0.5 animate-pulse"></span>
-                        )}
-                        <span
-                          className={`transition-colors duration-100 ${
-                            isTyped
-                              ? isCorrect
-                                ? "text-[var(--fg-accent)]"
-                                : "text-red-400"
-                              : "text-[var(--fg-muted)] opacity-50"
-                          }`}
-                        >
-                          {char}
-                        </span>
-                        {/* Cursor at the end if word is complete */}
-                        {charIndex === word.text.length - 1 &&
-                          input.length === word.text.length && (
-                            <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
-                          )}
-                      </span>
-                    );
-                  })
-                : word.text.split("").map((char, charIndex) => {
-                    const charKey = `${index}-${charIndex}`;
-                    const _wasIncorrect = incorrectChars.has(charKey);
-
-                    return (
-                      <span
-                        key={`char-${index}-${charIndex}-${char}`}
-                        className={`transition-colors duration-100 ${
-                          _wasIncorrect
-                            ? "text-red-400"
-                            : "text-[var(--fg-light)] opacity-60"
-                        }`}
-                      >
-                        {char}
-                      </span>
-                    );
-                  })}
-            </span>
+              word={word}
+              index={index}
+              currentWordIndex={currentWordIndex}
+              input={input}
+              incorrectChars={incorrectChars}
+            />
           ))}
         </div>
 
@@ -136,3 +184,6 @@ export default function TypingArea({
     </main>
   );
 }
+
+// Memoize the main TypingArea component to prevent unnecessary re-renders
+export default memo(TypingArea);

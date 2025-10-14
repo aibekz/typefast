@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { loadWordList } from "../lib/wordLoader";
 import type { TypingStats, Word } from "../types";
 import { calculateStats } from "../utils/calculateStats";
@@ -379,11 +379,11 @@ export const useTypingTest = (duration: number = 60) => {
     };
   }, [isTestActive, startTime, duration, endTest]);
 
-  // Calculate current stats using total typed characters for consistent WPM
-  const stats: TypingStats = calculateStats(
-    totalTypedCorrectChars,
-    totalTypedTotalChars,
-    timeElapsed,
+  // Memoize stats calculation to prevent unnecessary recalculations
+  const stats: TypingStats = useMemo(
+    () =>
+      calculateStats(totalTypedCorrectChars, totalTypedTotalChars, timeElapsed),
+    [totalTypedCorrectChars, totalTypedTotalChars, timeElapsed],
   );
 
   return {

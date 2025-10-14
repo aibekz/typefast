@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ToolbarProps {
   duration: number;
@@ -7,7 +7,7 @@ interface ToolbarProps {
   onReset: () => void;
 }
 
-export default function Toolbar({
+function Toolbar({
   duration,
   onDurationChange,
   onSetCustomDuration,
@@ -26,34 +26,44 @@ export default function Toolbar({
     }
   }, [showCustomModal]);
 
-  const handlePresetTime = (seconds: number) => {
-    onDurationChange(seconds - duration);
-  };
+  // Memoize callback functions to prevent unnecessary re-renders
+  const handlePresetTime = useCallback(
+    (seconds: number) => {
+      onDurationChange(seconds - duration);
+    },
+    [onDurationChange, duration],
+  );
 
-  const handleCustomTime = () => {
+  const handleCustomTime = useCallback(() => {
     const seconds = parseInt(customTime, 10);
     if (seconds >= 5 && seconds <= 300) {
       onSetCustomDuration(seconds);
       setShowCustomModal(false);
       setCustomTime("");
     }
-  };
+  }, [customTime, onSetCustomDuration]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleCustomTime();
-    } else if (e.key === "Escape") {
-      setShowCustomModal(false);
-      setCustomTime("");
-    }
-  };
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter") {
+        handleCustomTime();
+      } else if (e.key === "Escape") {
+        setShowCustomModal(false);
+        setCustomTime("");
+      }
+    },
+    [handleCustomTime],
+  );
+
+  // Memoize the duration presets to prevent unnecessary re-renders
+  const durationPresets = useMemo(() => [15, 20, 30, 60], []);
 
   return (
     <>
       <div className="flex flex-row justify-center items-center gap-2 max-w-4xl mx-auto px-4 py-3">
         {/* Time Presets */}
         <div className="flex items-center gap-2">
-          {[15, 20, 30, 60].map((seconds) => (
+          {durationPresets.map((seconds) => (
             <button
               key={seconds}
               type="button"
@@ -148,3 +158,6 @@ export default function Toolbar({
     </>
   );
 }
+
+// Memoize the Toolbar component to prevent unnecessary re-renders
+export default memo(Toolbar);
