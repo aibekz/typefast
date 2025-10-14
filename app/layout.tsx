@@ -18,6 +18,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://typefast.nvixio.com"),
   title: "TypeFast - Test Your Typing Speed",
   description:
     "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM (Words Per Minute), accuracy, and improve your typing skills with our interactive typing test.",
