@@ -34,7 +34,7 @@ const WordComponent = ({
 
   if (isCurrentWord) {
     return (
-      <span className="inline-block mx-2 text-[var(--fg-accent)]">
+      <span className="inline-block mx-2">
         {word.text.split("").map((char, charIndex) => {
           const isTyped = charIndex < input.length;
           const isCorrect = isTyped && input[charIndex].toLowerCase() === char.toLowerCase();
@@ -50,9 +50,9 @@ const WordComponent = ({
                 className={`transition-colors duration-100 ${
                   isTyped
                     ? isCorrect
-                      ? "text-[var(--fg-accent)]"
-                      : "text-red-400"
-                    : "text-[var(--fg-muted)] opacity-50"
+                      ? "text-green-400" // Correct typed characters in green
+                      : "text-red-400"   // Incorrect typed characters in red
+                    : "text-[var(--fg-muted)] opacity-50" // Untyped characters
                 }`}
               >
                 {char}
@@ -68,13 +68,7 @@ const WordComponent = ({
   }
 
   return (
-    <span
-      className={`inline-block mx-2 transition-colors duration-200 ${
-        isCompletedWord
-          ? "text-[var(--fg-light)] opacity-60"
-          : "text-[var(--fg-muted)] opacity-50"
-      }`}
-    >
+    <span className="inline-block mx-2">
       {word.text.split("").map((char, charIndex) => {
         const charKey = `${index}-${charIndex}`;
         const wasIncorrect = incorrectChars.has(charKey);
@@ -83,9 +77,11 @@ const WordComponent = ({
           <span
             key={`char-${index}-${charIndex}-${char}`}
             className={`transition-colors duration-100 ${
-              wasIncorrect
-                ? "text-red-400"
-                : "text-[var(--fg-light)] opacity-60"
+              isCompletedWord
+                ? wasIncorrect
+                  ? "text-red-400" // Keep error characters in red for completed words
+                  : "text-green-400" // Correct characters in green for completed words
+                : "text-[var(--fg-muted)] opacity-50" // Future words
             }`}
           >
             {char}

@@ -26,6 +26,12 @@ export const useTypingTest = (duration: number = 60) => {
     totalChars: 0,
     incorrectChars: new Set<string>(),
   });
+  
+  // Cumulative statistics across all words
+  const [cumulativeStats, setCumulativeStats] = useState({
+    correctChars: 0,
+    totalChars: 0,
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -71,6 +77,10 @@ export const useTypingTest = (duration: number = 60) => {
       totalChars: 0,
       incorrectChars: new Set<string>(),
     });
+    setCumulativeStats({
+      correctChars: 0,
+      totalChars: 0,
+    });
     setTimeElapsed(0);
     setTimeRemaining(duration);
     setIsComplete(false);
@@ -108,14 +118,22 @@ export const useTypingTest = (duration: number = 60) => {
       setStartTime(Date.now());
     }
 
-    // Block input if word is complete
+    // Allow editing of current word only
     if (value.length > currentWord?.text.length) return;
 
     setInput(value);
 
-    // Calculate correct characters for current word
-    let correctCount = 0;
+    // Create a new set of incorrect characters
     const newIncorrectChars = new Set(stats.incorrectChars);
+    // Clear incorrect chars for the current word we're typing
+    for (const key of newIncorrectChars) {
+      if (key.startsWith(`${currentWordIndex}-`)) {
+        newIncorrectChars.delete(key);
+      }
+    }
+
+    // Calculate correct characters and track incorrect ones for current word
+    let correctCount = 0;
     
     for (let i = 0; i < value.length; i++) {
       if (i < currentWord?.text.length) {
@@ -123,6 +141,7 @@ export const useTypingTest = (duration: number = 60) => {
         if (isCorrect) {
           correctCount++;
         } else {
+          // Mark this character as incorrect
           newIncorrectChars.add(`${currentWordIndex}-${i}`);
         }
       }
@@ -144,11 +163,21 @@ export const useTypingTest = (duration: number = 60) => {
       return;
     }
 
+    if (e.key === "Backspace") {
+      handleBackspace();
+    }
+
     if (e.key === " ") {
       e.preventDefault();
       
       // Only allow space to move to next word if current word is complete
       if (input.length >= words[currentWordIndex]?.text.length) {
+        // Accumulate statistics for the completed word
+        setCumulativeStats(prev => ({
+          correctChars: prev.correctChars + stats.correctChars,
+          totalChars: prev.totalChars + stats.totalChars,
+        }));
+        
         const nextWordIndex = currentWordIndex + 1;
         
         // Replace words if we've completed all 25
@@ -160,11 +189,12 @@ export const useTypingTest = (duration: number = 60) => {
         }
         
         setInput("");
+        // Reset current word stats but keep incorrectChars for completed words
         setStats(prev => ({
           ...prev,
           correctChars: 0,
           totalChars: 0,
-          incorrectChars: new Set(),
+          // Keep incorrectChars as they are - don't clear them
         }));
       }
     }
@@ -174,6 +204,47 @@ export const useTypingTest = (duration: number = 60) => {
     if (isComplete || timeRemaining <= 0) {
       e.preventDefault();
       return;
+    }
+  };
+
+  // Handle backspace to go back to previous words
+  const handleBackspace = () => {
+    if (input.length === 0 && currentWordIndex > 0) {
+      // Go back to previous word
+      const prevWordIndex = currentWordIndex - 1;
+      const prevWord = words[prevWordIndex];
+      setCurrentWordIndex(prevWordIndex);
+      setInput(prevWord?.text || "");
+      
+      // Update stats for previous word
+      let correctCount = 0;
+      const newIncorrectChars = new Set(stats.incorrectChars);
+      
+      // Clear incorrect chars for the word we're going back to
+      for (const key of newIncorrectChars) {
+        if (key.startsWith(`${prevWordIndex}-`)) {
+          newIncorrectChars.delete(key);
+        }
+      }
+      
+      // Recalculate for the previous word
+      for (let i = 0; i < (prevWord?.text.length || 0); i++) {
+        if (i < prevWord?.text.length) {
+          const isCorrect = prevWord.text[i].toLowerCase() === prevWord.text[i].toLowerCase();
+          if (isCorrect) {
+            correctCount++;
+          } else {
+            newIncorrectChars.add(`${prevWordIndex}-${i}`);
+          }
+        }
+      }
+      
+      setStats(prev => ({
+        ...prev,
+        correctChars: correctCount,
+        totalChars: prevWord?.text.length || 0,
+        incorrectChars: newIncorrectChars,
+      }));
     }
   };
 
@@ -228,10 +299,13 @@ export const useTypingTest = (duration: number = 60) => {
     };
   }, [isActive, startTime, duration]);
 
-  // Calculate final stats
+  // Calculate final stats using cumulative statistics
+  const totalCorrectChars = cumulativeStats.correctChars + stats.correctChars;
+  const totalTotalChars = cumulativeStats.totalChars + stats.totalChars;
+  
   const finalStats: TypingStats = calculateStats(
-    stats.correctChars,
-    stats.totalChars,
+    totalCorrectChars,
+    totalTotalChars,
     timeElapsed
   );
 
