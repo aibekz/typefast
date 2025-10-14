@@ -93,6 +93,17 @@ export const useTypingTest = (duration: number = 60) => {
     }
   }, [isTestComplete, timeRemaining]);
 
+  // Auto-focus input when test is ready
+  useEffect(() => {
+    if (!isLoadingWords && !isTestComplete && timeRemaining > 0 && inputRef.current) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoadingWords, isTestComplete, timeRemaining]);
+
   // ===== INPUT HANDLING =====
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

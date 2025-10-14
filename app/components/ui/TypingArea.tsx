@@ -10,6 +10,9 @@ interface TypingAreaProps {
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  isTestActive: boolean;
+  timeRemaining: number;
+  formatTime: (seconds: number) => string;
 }
 
 export default function TypingArea({
@@ -22,9 +25,21 @@ export default function TypingArea({
   onInputChange,
   onKeyDown,
   onKeyPress,
+  isTestActive,
+  timeRemaining,
+  formatTime,
 }: TypingAreaProps) {
   return (
-    <main className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] px-3 sm:px-4">
+    <main className="flex flex-col items-center justify-center px-3 sm:px-4">
+      {/* Timer Counter - Always visible */}
+      <div className={`mb-4 text-4xl font-mono transition-colors duration-200 ${
+        isTestActive 
+          ? "text-[var(--fg-accent)]" 
+          : "text-[var(--fg-muted)]"
+      }`}>
+        {formatTime(timeRemaining)}
+      </div>
+      
       <button
         type="button"
         className="w-full max-w-4xl mb-6 sm:mb-8 relative cursor-text bg-transparent border-none p-0"
