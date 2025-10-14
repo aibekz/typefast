@@ -95,7 +95,12 @@ export const useTypingTest = (duration: number = 60) => {
 
   // Auto-focus input when test is ready
   useEffect(() => {
-    if (!isLoadingWords && !isTestComplete && timeRemaining > 0 && inputRef.current) {
+    if (
+      !isLoadingWords &&
+      !isTestComplete &&
+      timeRemaining > 0 &&
+      inputRef.current
+    ) {
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
         inputRef.current?.focus();

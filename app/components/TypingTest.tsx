@@ -41,18 +41,15 @@ export default function TypingTest() {
     [duration, resetTest],
   );
 
-  const setCustomDuration = useCallback(
-    (newDuration: number) => {
-      const clampedDuration = Math.max(5, Math.min(300, newDuration));
-      setDuration(clampedDuration);
-    },
-    [],
-  );
+  const setCustomDuration = useCallback((newDuration: number) => {
+    const clampedDuration = Math.max(5, Math.min(300, newDuration));
+    setDuration(clampedDuration);
+  }, []);
 
   // Reset test when duration changes
   useEffect(() => {
     resetTest();
-  }, [duration, resetTest]);
+  }, [resetTest]);
 
   return (
     <div className="h-screen bg-[var(--bg-dark)] text-[var(--fg-light)] font-sans flex flex-col">
@@ -81,12 +78,9 @@ export default function TypingTest() {
           <>
             <Toolbar
               duration={duration}
-              timeRemaining={timeRemaining}
-              isTestActive={isTestActive}
               onDurationChange={adjustDuration}
               onSetCustomDuration={setCustomDuration}
               onReset={resetTest}
-              formatTime={formatTime}
             />
             <div className="flex-1 flex items-center justify-center">
               <TypingArea

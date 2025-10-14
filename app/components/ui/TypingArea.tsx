@@ -32,14 +32,14 @@ export default function TypingArea({
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4">
       {/* Timer Counter - Always visible */}
-      <div className={`mb-4 text-4xl font-mono transition-colors duration-200 ${
-        isTestActive 
-          ? "text-[var(--fg-accent)]" 
-          : "text-[var(--fg-muted)]"
-      }`}>
+      <div
+        className={`mb-4 text-4xl font-mono transition-colors duration-200 ${
+          isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
+        }`}
+      >
         {formatTime(timeRemaining)}
       </div>
-      
+
       <button
         type="button"
         className="w-full max-w-4xl mb-6 sm:mb-8 relative cursor-text bg-transparent border-none p-0"

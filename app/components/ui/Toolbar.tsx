@@ -2,22 +2,16 @@ import { useState, useEffect, useRef } from "react";
 
 interface ToolbarProps {
   duration: number;
-  timeRemaining: number;
-  isTestActive: boolean;
   onDurationChange: (delta: number) => void;
   onSetCustomDuration: (duration: number) => void;
   onReset: () => void;
-  formatTime: (seconds: number) => string;
 }
 
 export default function Toolbar({
   duration,
-  timeRemaining,
-  isTestActive,
   onDurationChange,
   onSetCustomDuration,
   onReset,
-  formatTime,
 }: ToolbarProps) {
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [customTime, setCustomTime] = useState("");
@@ -37,7 +31,7 @@ export default function Toolbar({
   };
 
   const handleCustomTime = () => {
-    const seconds = parseInt(customTime);
+    const seconds = parseInt(customTime, 10);
     if (seconds >= 5 && seconds <= 300) {
       onSetCustomDuration(seconds);
       setShowCustomModal(false);
@@ -114,21 +108,25 @@ export default function Toolbar({
                 onKeyDown={handleKeyDown}
                 placeholder="Enter seconds (e.g., 10, 45, 120, 180)"
                 className="w-full px-3 py-2 bg-[var(--bg-dark)] border border-[var(--border)] text-[var(--fg-light)] rounded font-mono focus:border-[var(--fg-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--fg-accent)] focus:ring-opacity-50"
-                autoFocus
                 autoComplete="off"
                 spellCheck="false"
                 tabIndex={0}
                 ref={inputRef}
               />
               <p className="text-xs text-[var(--fg-muted)] mt-1">
-                Enter any number between 5 and 300 seconds (5 seconds to 5 minutes)
+                Enter any number between 5 and 300 seconds (5 seconds to 5
+                minutes)
               </p>
             </div>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={handleCustomTime}
-                disabled={!customTime || parseInt(customTime) < 5 || parseInt(customTime) > 300}
+                disabled={
+                  !customTime ||
+                  parseInt(customTime, 10) < 5 ||
+                  parseInt(customTime, 10) > 300
+                }
                 className="px-4 py-2 bg-[var(--fg-accent)] text-[var(--bg-dark)] rounded font-mono hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Set Time
