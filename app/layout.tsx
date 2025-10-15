@@ -18,10 +18,10 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://typefast.nvixio.com"),
+  metadataBase: new URL("https://typefast.nvix.io"),
   title: "TypeFast - Test Your Typing Speed",
   description:
-    "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM (Words Per Minute), accuracy, and improve your typing skills with our interactive typing test.",
+    "Test your typing speed with TypeFast from Nvix I/O - a free, modern typing speed test. Measure your WPM (Words Per Minute), accuracy, and improve your typing skills with our interactive typing test.",
   keywords: [
     "typing test",
     "typing speed test",
@@ -36,9 +36,9 @@ export const metadata: Metadata = {
     "typing tutor",
     "keyboard typing",
   ],
-  authors: [{ name: "Nvixio" }],
-  creator: "Nvixio",
-  publisher: "Nvixio",
+  authors: [{ name: "Nvix I/O" }],
+  creator: "Nvix I/O",
+  publisher: "Nvix I/O",
   robots: {
     index: true,
     follow: true,
@@ -53,10 +53,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://typefast.nvixio.com",
+    url: "https://typefast.nvix.io",
     title: "TypeFast - Test Your Typing Speed",
     description:
-      "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
+      "Test your typing speed with TypeFast from Nvix I/O - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
     siteName: "TypeFast",
     images: [
       {
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TypeFast - Test Your Typing Speed",
     description:
-      "Test your typing speed with TypeFast from Nvixio - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
+      "Test your typing speed with TypeFast from Nvix I/O - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
     images: ["/og-image.png"],
   },
   icons: {
@@ -92,8 +92,8 @@ export default function RootLayout({
     "@type": "WebApplication",
     name: "TypeFast",
     description:
-      "A free online typing speed test application to measure your WPM and improve your typing skills from Nvixio",
-    url: "https://typefast.nvixio.com",
+      "A free online typing speed test application to measure your WPM and improve your typing skills from Nvix I/O",
+    url: "https://typefast.nvix.io",
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web Browser",
     offers: {
@@ -103,8 +103,8 @@ export default function RootLayout({
     },
     creator: {
       "@type": "Organization",
-      name: "Nvixio",
-      url: "https://nvixio.com",
+      name: "Nvix I/O",
+      url: "https://nvix.io",
     },
     featureList: [
       "Typing speed test",

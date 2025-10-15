@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://typefast.nvixio.com/sitemap.xml",
+    sitemap: "https://typefast.nvix.io/sitemap.xml",
   };
 }

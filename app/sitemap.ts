@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://typefast.nvixio.com";
+  const baseUrl = "https://typefast.nvix.io";
 
   return [
     {

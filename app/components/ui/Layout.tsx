@@ -25,12 +25,12 @@ export default function Layout({ children }: LayoutProps) {
         <div className="text-center text-xs text-[var(--fg-muted)] py-2">
           © 2025 TypeFast from{" "}
           <a
-            href="https://nvixio.com"
+            href="https://nvix.io"
             target="_blank"
             rel="noopener noreferrer"
             className="text-[var(--fg-light)] hover:opacity-80 transition-opacity"
           >
-            Nvixio
+            Nvix I/O
           </a>
         </div>
       </footer>
