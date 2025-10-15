@@ -109,7 +109,7 @@ function TypingArea({
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4">
       {/* Timer Counter - Always visible */}
-      <div className={`mb-4 text-4xl font-mono transition-colors duration-200 ${
+      <div className={`mb-4 text-4xl font-space-grotesk transition-colors duration-200 ${
         isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
       }`}>
         {formatTime(timeRemaining)}

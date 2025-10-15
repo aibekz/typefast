@@ -62,7 +62,7 @@ function Toolbar({
               onClick={() => handlePresetTime(seconds)}
               className={`px-3 py-1 text-sm font-mono transition-all duration-200 rounded ${
                 duration === seconds
-                  ? "bg-[var(--fg-accent)] text-[var(--bg-dark)]"
+                  ? "bg-[var(--purple-button)] text-white"
                   : "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:bg-[var(--border-light)] hover:text-[var(--fg-light)]"
               }`}
             >
@@ -129,7 +129,7 @@ function Toolbar({
                   parseInt(customTime, 10) < 5 ||
                   parseInt(customTime, 10) > 300
                 }
-                className="px-4 py-2 bg-[var(--fg-accent)] text-[var(--bg-dark)] rounded font-mono hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-[var(--purple-button)] text-white rounded font-mono hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Set Time
               </button>

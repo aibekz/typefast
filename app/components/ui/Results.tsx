@@ -110,7 +110,7 @@ function Results({ stats, timeElapsed, formatTime, onRestart }: ResultsProps) {
             <button
               type="button"
               onClick={onRestart}
-              className="px-6 sm:px-8 py-3 sm:py-4 bg-[var(--fg-accent)] text-[var(--bg-dark)] font-bold text-lg sm:text-xl hover:opacity-80 transition-opacity rounded-lg"
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-[var(--purple-button)] text-white font-bold text-lg sm:text-xl hover:opacity-80 transition-opacity rounded-lg"
             >
               Restart Test
             </button>

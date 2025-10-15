@@ -9,6 +9,7 @@
   --border: #404040;
   --border-light: #525252;
   --matrix-green: #39ff14;
+  --purple-button: #7c3aed;
 }
 
 @theme inline {
@@ -20,8 +21,10 @@
   --color-border: var(--border);
   --color-border-light: var(--border-light);
   --color-matrix-green: var(--matrix-green);
+  --color-purple-button: var(--purple-button);
   --font-sans: var(--font-ibm-plex-sans);
   --font-mono: var(--font-ibm-plex-mono);
+  --font-space-grotesk: var(--font-space-grotesk);
 }
 
 body {
@@ -42,4 +45,9 @@ body {
 /* Smooth transitions for word changes */
 .word-transition {
   transition: all 0.1s ease-out;
+}
+
+/* SpaceGrotesk font for time display */
+.font-space-grotesk {
+  font-family: var(--font-space-grotesk), system-ui, -apple-system, sans-serif;
 }
