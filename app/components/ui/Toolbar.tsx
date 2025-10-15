@@ -102,8 +102,8 @@ function Toolbar({
                 value={customTime}
                 onChange={(e) => {
                   const value = e.target.value;
-                  // Only allow numbers
-                  if (/^\d*$/.test(value)) {
+                  // Only allow numbers and empty string
+                  if (value === '' || /^\d*$/.test(value)) {
                     setCustomTime(value);
                   }
                 }}
