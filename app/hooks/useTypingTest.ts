@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { loadWordList } from "../lib/wordLoader";
 import type { TypingStats, Word } from "../types";
 import { calculateStats } from "../utils/calculateStats";
@@ -26,7 +26,7 @@ export const useTypingTest = (duration: number = 60) => {
     totalChars: 0,
     incorrectChars: new Set<string>(),
   });
-  
+
   // Cumulative statistics across all words
   const [cumulativeStats, setCumulativeStats] = useState({
     correctChars: 0,
@@ -37,13 +37,14 @@ export const useTypingTest = (duration: number = 60) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ===== WORD GENERATION =====
-  const generateWords = async () => {
+  const generateWords = useCallback(async () => {
     setIsLoading(true);
     try {
       const wordList = await loadWordList();
       const newWords: Word[] = [];
       for (let i = 0; i < 25; i++) {
-        const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+        const randomWord =
+          wordList[Math.floor(Math.random() * wordList.length)];
         newWords.push({
           text: randomWord,
           status: "pending",
@@ -56,7 +57,7 @@ export const useTypingTest = (duration: number = 60) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // ===== TEST CONTROL =====
   const endTest = () => {
@@ -67,7 +68,7 @@ export const useTypingTest = (duration: number = 60) => {
     setIsComplete(true);
   };
 
-  const resetTest = () => {
+  const resetTest = useCallback(() => {
     setIsActive(false);
     setStartTime(null);
     setInput("");
@@ -86,7 +87,7 @@ export const useTypingTest = (duration: number = 60) => {
     setIsComplete(false);
     setIsLoading(true);
     generateWords();
-  };
+  }, [duration, generateWords]);
 
   // ===== FOCUS MANAGEMENT =====
   const handleContainerClick = () => {
@@ -134,10 +135,11 @@ export const useTypingTest = (duration: number = 60) => {
 
     // Calculate correct characters and track incorrect ones for current word
     let correctCount = 0;
-    
+
     for (let i = 0; i < value.length; i++) {
       if (i < currentWord?.text.length) {
-        const isCorrect = value[i].toLowerCase() === currentWord.text[i].toLowerCase();
+        const isCorrect =
+          value[i].toLowerCase() === currentWord.text[i].toLowerCase();
         if (isCorrect) {
           correctCount++;
         } else {
@@ -148,7 +150,7 @@ export const useTypingTest = (duration: number = 60) => {
     }
 
     // Update stats
-    setStats(prev => ({
+    setStats((prev) => ({
       ...prev,
       correctChars: correctCount,
       totalChars: value.length,
@@ -169,17 +171,17 @@ export const useTypingTest = (duration: number = 60) => {
 
     if (e.key === " ") {
       e.preventDefault();
-      
+
       // Only allow space to move to next word if current word is complete
       if (input.length >= words[currentWordIndex]?.text.length) {
         // Accumulate statistics for the completed word
-        setCumulativeStats(prev => ({
+        setCumulativeStats((prev) => ({
           correctChars: prev.correctChars + stats.correctChars,
           totalChars: prev.totalChars + stats.totalChars,
         }));
-        
+
         const nextWordIndex = currentWordIndex + 1;
-        
+
         // Replace words if we've completed all 25
         if (nextWordIndex === 25) {
           generateWords();
@@ -187,10 +189,10 @@ export const useTypingTest = (duration: number = 60) => {
         } else {
           setCurrentWordIndex(nextWordIndex);
         }
-        
+
         setInput("");
         // Reset current word stats but keep incorrectChars for completed words
-        setStats(prev => ({
+        setStats((prev) => ({
           ...prev,
           correctChars: 0,
           totalChars: 0,
@@ -215,22 +217,23 @@ export const useTypingTest = (duration: number = 60) => {
       const prevWord = words[prevWordIndex];
       setCurrentWordIndex(prevWordIndex);
       setInput(prevWord?.text || "");
-      
+
       // Update stats for previous word
       let correctCount = 0;
       const newIncorrectChars = new Set(stats.incorrectChars);
-      
+
       // Clear incorrect chars for the word we're going back to
       for (const key of newIncorrectChars) {
         if (key.startsWith(`${prevWordIndex}-`)) {
           newIncorrectChars.delete(key);
         }
       }
-      
+
       // Recalculate for the previous word
       for (let i = 0; i < (prevWord?.text.length || 0); i++) {
         if (i < prevWord?.text.length) {
-          const isCorrect = prevWord.text[i].toLowerCase() === prevWord.text[i].toLowerCase();
+          const isCorrect =
+            prevWord.text[i].toLowerCase() === prevWord.text[i].toLowerCase();
           if (isCorrect) {
             correctCount++;
           } else {
@@ -238,8 +241,8 @@ export const useTypingTest = (duration: number = 60) => {
           }
         }
       }
-      
-      setStats(prev => ({
+
+      setStats((prev) => ({
         ...prev,
         correctChars: correctCount,
         totalChars: prevWord?.text.length || 0,
@@ -297,16 +300,16 @@ export const useTypingTest = (duration: number = 60) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [isActive, startTime, duration]);
+  }, [isActive, startTime, duration, endTest]);
 
   // Calculate final stats using cumulative statistics
   const totalCorrectChars = cumulativeStats.correctChars + stats.correctChars;
   const totalTotalChars = cumulativeStats.totalChars + stats.totalChars;
-  
+
   const finalStats: TypingStats = calculateStats(
     totalCorrectChars,
     totalTotalChars,
-    timeElapsed
+    timeElapsed,
   );
 
   return {

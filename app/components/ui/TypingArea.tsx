@@ -37,9 +37,10 @@ const WordComponent = ({
       <span className="inline-block mx-2">
         {word.text.split("").map((char, charIndex) => {
           const isTyped = charIndex < input.length;
-          const isCorrect = isTyped && input[charIndex].toLowerCase() === char.toLowerCase();
+          const isCorrect =
+            isTyped && input[charIndex].toLowerCase() === char.toLowerCase();
           const charKey = `${index}-${charIndex}`;
-          const wasIncorrect = incorrectChars.has(charKey);
+          const _wasIncorrect = incorrectChars.has(charKey);
 
           return (
             <span key={`char-${index}-${charIndex}-${char}`}>
@@ -51,15 +52,16 @@ const WordComponent = ({
                   isTyped
                     ? isCorrect
                       ? "text-green-400" // Correct typed characters in green
-                      : "text-red-400"   // Incorrect typed characters in red
+                      : "text-red-400" // Incorrect typed characters in red
                     : "text-[var(--fg-muted)] opacity-50" // Untyped characters
                 }`}
               >
                 {char}
               </span>
-              {charIndex === word.text.length - 1 && input.length === word.text.length && (
-                <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
-              )}
+              {charIndex === word.text.length - 1 &&
+                input.length === word.text.length && (
+                  <span className="inline-block w-0.5 h-6 bg-[var(--fg-accent)] ml-0.5 animate-pulse"></span>
+                )}
             </span>
           );
         })}
@@ -107,17 +109,19 @@ function TypingArea({
   formatTime,
 }: TypingAreaProps) {
   return (
-    <main className="flex flex-col items-center justify-center px-3 sm:px-4">
+    <main className="flex flex-col items-center justify-center px-3 sm:px-4 w-full max-w-6xl h-full">
       {/* Timer Counter - Always visible */}
-      <div className={`mb-4 text-4xl font-space-grotesk transition-colors duration-200 ${
-        isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
-      }`}>
+      <div
+        className={`mb-8 text-4xl font-space-grotesk transition-colors duration-200 text-center ${
+          isTestActive ? "text-[var(--fg-accent)]" : "text-[var(--fg-muted)]"
+        }`}
+      >
         {formatTime(timeRemaining)}
       </div>
 
       <button
         type="button"
-        className="w-full max-w-4xl mb-6 sm:mb-8 relative cursor-text bg-transparent border-none p-0"
+        className="w-full max-w-4xl relative cursor-text bg-transparent border-none p-0"
         onClick={onContainerClick}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {

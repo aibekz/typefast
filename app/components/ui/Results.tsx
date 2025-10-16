@@ -8,7 +8,8 @@ interface ResultsProps {
 }
 
 function Results({ stats, timeElapsed, formatTime, onRestart }: ResultsProps) {
-  const overallAccuracy = Math.round((stats.correctChars / stats.totalChars) * 100) || 0;
+  const overallAccuracy =
+    Math.round((stats.correctChars / stats.totalChars) * 100) || 0;
 
   return (
     <div className="fixed inset-0 bg-[var(--bg-dark)] bg-opacity-95 z-50 overflow-y-auto">

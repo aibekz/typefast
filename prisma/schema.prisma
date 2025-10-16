@@ -1,0 +1,146 @@
+// TypeFast Database Schema
+// This database stores TypeFast-specific data
+// User authentication is handled by auth.nvix.io
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User profile (linked to auth.nvix.io user)
+model User {
+  id        String   @id @default(cuid())
+  authId    String   @unique // ID from auth.nvix.io
+  email     String   @unique
+  name      String?
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tests       Test[]
+  progress    Progress[]
+  settings    UserSettings?
+  competitions CompetitionParticipant[]
+
+  @@map("users")
+}
+
+// Individual typing test results
+model Test {
+  id          String   @id @default(cuid())
+  userId      String
+  wpm         Int      // Words per minute
+  accuracy    Float    // Accuracy percentage
+  time        Int      // Test duration in seconds
+  characters  Int      // Total characters typed
+  mistakes    Int      // Number of mistakes
+  testType    String   // "time", "words", "quote"
+  difficulty  String   // "easy", "medium", "hard"
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tests")
+}
+
+// User progress tracking
+model Progress {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @default(now())
+  averageWpm  Float
+  bestWpm     Int
+  testsCount  Int
+  accuracy    Float
+  timeSpent   Int      // Total time in minutes
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("progress")
+}
+
+// User settings and preferences
+model UserSettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  theme           String   @default("dark") // "dark", "light"
+  fontSize        Int      @default(16)
+  showTimer       Boolean  @default(true)
+  showWpm         Boolean  @default(true)
+  showAccuracy    Boolean  @default(true)
+  soundEnabled    Boolean  @default(true)
+  autoStart       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// Competitions and challenges
+model Competition {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // Relations
+  participants CompetitionParticipant[]
+
+  @@map("competitions")
+}
+
+// Competition participants
+model CompetitionParticipant {
+  id            String   @id @default(cuid())
+  competitionId String
+  userId        String
+  score         Int      @default(0)
+  rank          Int?
+  joinedAt      DateTime @default(now())
+
+  // Relations
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([competitionId, userId])
+  @@map("competition_participants")
+}
+
+// Achievements and badges
+model Achievement {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String   // "speed", "accuracy", "consistency", "streak"
+  title       String
+  description String
+  icon        String
+  earnedAt    DateTime @default(now())
+
+  @@map("achievements")
+}
+
+// Leaderboards
+model Leaderboard {
+  id        String   @id @default(cuid())
+  type      String   // "daily", "weekly", "monthly", "all-time"
+  period    String   // "2024-01-01" for daily, "2024-W01" for weekly, etc.
+  entries   Json     // Array of {userId, wpm, accuracy, rank}
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([type, period])
+  @@map("leaderboards")
+}

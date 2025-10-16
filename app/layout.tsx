@@ -2,6 +2,8 @@ import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import Layout from "./components/ui/Layout";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
@@ -141,7 +143,9 @@ export default function RootLayout({
       <body
         className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} antialiased`}
       >
-        {children}
+        <AuthProvider>
+          <Layout>{children}</Layout>
+        </AuthProvider>
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
     </html>

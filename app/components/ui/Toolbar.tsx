@@ -52,7 +52,7 @@ function Toolbar({
 
   return (
     <>
-      <div className="flex flex-row justify-center items-center gap-2 max-w-4xl mx-auto px-4 py-3">
+      <div className="flex flex-row justify-center items-center gap-2 max-w-4xl mx-auto px-4 py-4">
         {/* Time Presets */}
         <div className="flex items-center gap-2">
           {durationPresets.map((seconds) => (
@@ -103,7 +103,7 @@ function Toolbar({
                 onChange={(e) => {
                   const value = e.target.value;
                   // Only allow numbers and empty string
-                  if (value === '' || /^\d*$/.test(value)) {
+                  if (value === "" || /^\d*$/.test(value)) {
                     setCustomTime(value);
                   }
                 }}

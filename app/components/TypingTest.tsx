@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTypingTest } from "../hooks/useTypingTest";
-import Layout from "./ui/Layout";
 import Results from "./ui/Results";
 import Toolbar from "./ui/Toolbar";
 import TypingArea from "./ui/TypingArea";
@@ -44,12 +43,12 @@ function TypingTest() {
   // Reset test when duration changes
   useEffect(() => {
     resetTest();
-  }, [duration]);
+  }, [resetTest]);
 
   return (
-    <Layout>
+    <>
       {isComplete ? (
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex items-center justify-center p-4">
           <Results
             stats={stats}
             timeElapsed={timeElapsed}
@@ -58,7 +57,7 @@ function TypingTest() {
           />
         </div>
       ) : isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex items-center justify-center p-4">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--purple-button)] mx-auto mb-4"></div>
             <p className="text-[var(--fg-muted)]">Loading words...</p>
@@ -66,13 +65,15 @@ function TypingTest() {
         </div>
       ) : (
         <>
-          <Toolbar
-            duration={duration}
-            onDurationChange={adjustDuration}
-            onSetCustomDuration={setCustomDuration}
-            onReset={resetTest}
-          />
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-shrink-0">
+            <Toolbar
+              duration={duration}
+              onDurationChange={adjustDuration}
+              onSetCustomDuration={setCustomDuration}
+              onReset={resetTest}
+            />
+          </div>
+          <div className="flex items-center justify-center p-4">
             <TypingArea
               words={words}
               currentWordIndex={currentWordIndex}
@@ -90,7 +91,7 @@ function TypingTest() {
           </div>
         </>
       )}
-    </Layout>
+    </>
   );
 }
 
