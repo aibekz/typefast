@@ -27,10 +27,10 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://typefast.nvix.io"),
-  title: "TypeFast - Test Your Typing Speed",
+  metadataBase: new URL("https://retype.nvix.io"),
+  title: "Retype - Test Your Typing Speed",
   description:
-    "Test your typing speed with TypeFast from Nvix I/O - a free, modern typing speed test. Measure your WPM (Words Per Minute), accuracy, and improve your typing skills with our interactive typing test.",
+    "Test your typing speed with Retype from Nvix I/O - a free, modern typing speed test. Measure your WPM (Words Per Minute), accuracy, and improve your typing skills with our interactive typing test.",
   keywords: [
     "typing test",
     "typing speed test",
@@ -62,25 +62,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://typefast.nvix.io",
-    title: "TypeFast - Test Your Typing Speed",
+    url: "https://retype.nvix.io",
+    title: "Retype - Test Your Typing Speed",
     description:
-      "Test your typing speed with TypeFast from Nvix I/O - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
-    siteName: "TypeFast",
+      "Test your typing speed with Retype from Nvix I/O - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
+    siteName: "Retype",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "TypeFast - Test Your Typing Speed",
+        alt: "Retype - Test Your Typing Speed",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "TypeFast - Test Your Typing Speed",
+    title: "Retype - Test Your Typing Speed",
     description:
-      "Test your typing speed with TypeFast from Nvix I/O - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
+      "Test your typing speed with Retype from Nvix I/O - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
     images: ["/og-image.png"],
   },
   icons: {
@@ -99,10 +99,10 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "TypeFast",
+    name: "Retype",
     description:
       "A free online typing speed test application to measure your WPM and improve your typing skills from Nvix I/O",
-    url: "https://typefast.nvix.io",
+    url: "https://retype.nvix.io",
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web Browser",
     offers: {

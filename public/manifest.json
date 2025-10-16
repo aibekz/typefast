@@ -1,7 +1,7 @@
 {
-  "name": "TypeFast - Typing Speed Test",
-  "short_name": "TypeFast",
-  "description": "Test your typing speed with TypeFast - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
+  "name": "Retype - Typing Speed Test",
+  "short_name": "Retype",
+  "description": "Test your typing speed with Retype - a free, modern typing speed test. Measure your WPM, accuracy, and improve your typing skills.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f0f",
@@ -18,5 +18,5 @@
   "categories": ["productivity", "education", "utilities"],
   "lang": "en",
   "scope": "/",
-  "id": "typefast-typing-test"
+  "id": "retype-typing-test"
 }

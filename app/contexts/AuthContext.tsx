@@ -18,9 +18,9 @@ import {
   validateToken,
 } from "../../lib/auth";
 import {
-  createTypefastUser,
-  getTypefastUserByNvixioId,
-  updateTypefastUser,
+  createRetypeUser,
+  getRetypeUserByNvixioId,
+  updateRetypeUser,
 } from "../../lib/database";
 
 interface AuthContextType extends AuthState {
@@ -66,24 +66,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userInfo,
       );
 
-      // Store/update TypeFast user profile (linked to NVIXIO user)
+      // Store/update Retype user profile (linked to NVIXIO user)
       try {
         // Extract NVIXIO user ID from JWT token (assuming it's in the token)
         const nvixioUserId = userInfo.id || userInfo.email; // Use email as fallback for NVIXIO user ID
         console.log("AuthContext: NVIXIO user ID:", nvixioUserId);
 
-        const existingTypefastUser =
-          await getTypefastUserByNvixioId(nvixioUserId);
-        if (existingTypefastUser) {
-          // Update existing TypeFast user profile
-          await updateTypefastUser(nvixioUserId, {
+        const existingRetypeUser =
+          await getRetypeUserByNvixioId(nvixioUserId);
+        if (existingRetypeUser) {
+          // Update existing Retype user profile
+          await updateRetypeUser(nvixioUserId, {
             email: userInfo.email,
             name: userInfo.name,
             avatar: userInfo.avatar,
           });
         } else {
-          // Create new TypeFast user profile
-          await createTypefastUser({
+          // Create new Retype user profile
+          await createRetypeUser({
             authId: nvixioUserId,
             email: userInfo.email,
             name: userInfo.name,

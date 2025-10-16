@@ -1,6 +1,6 @@
 // Client-side database operations that call API routes
 
-export async function createTypefastUser(userData: {
+export async function createRetypeUser(userData: {
   authId: string;
   email: string;
   name?: string;
@@ -22,7 +22,7 @@ export async function createTypefastUser(userData: {
   return response.json();
 }
 
-export async function getTypefastUserByNvixioId(nvixioUserId: string) {
+export async function getRetypeUserByNvixioId(nvixioUserId: string) {
   const response = await fetch(
     `/api/user?authId=${encodeURIComponent(nvixioUserId)}`,
   );
@@ -39,17 +39,17 @@ export async function getTypefastUserByNvixioId(nvixioUserId: string) {
   return response.json();
 }
 
-export async function getTypefastUserByEmail(_email: string) {
+export async function getRetypeUserByEmail(_email: string) {
   // This would need a separate API endpoint if needed
-  throw new Error("getTypefastUserByEmail not implemented");
+  throw new Error("getRetypeUserByEmail not implemented");
 }
 
-export async function getTypefastUserById(_id: string) {
+export async function getRetypeUserById(_id: string) {
   // This would need a separate API endpoint if needed
-  throw new Error("getTypefastUserById not implemented");
+  throw new Error("getRetypeUserById not implemented");
 }
 
-export async function updateTypefastUser(
+export async function updateRetypeUser(
   authId: string,
   userData: {
     email?: string;

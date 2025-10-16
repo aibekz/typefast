@@ -10,7 +10,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md px-6">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-[var(--fg-light)]">
-            Sign in to TypeFast
+            Sign in to Retype
           </h2>
         </div>
 

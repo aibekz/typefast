@@ -101,7 +101,7 @@ export default function AuthCallbackPage() {
             Login Successful!
           </h2>
           <p className="mt-2 text-sm text-[var(--fg-muted)]">
-            Redirecting you to TypeFast...
+            Redirecting you to Retype...
           </p>
         </div>
       </div>

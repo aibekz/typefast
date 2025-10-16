@@ -16,7 +16,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="h-screen bg-[var(--bg-dark)] text-[var(--fg-light)] font-sans flex flex-col">
       {/* SEO Heading - Hidden but accessible to screen readers */}
-      <h1 className="sr-only">TypeFast - Test Your Typing Speed</h1>
+      <h1 className="sr-only">Retype - Test Your Typing Speed</h1>
 
       {/* Header */}
       <header className="flex flex-row justify-between items-center p-3 sm:p-4 gap-2 sm:gap-4">
@@ -25,7 +25,7 @@ export default function Layout({ children }: LayoutProps) {
             href="/"
             className="text-lg font-bold text-[var(--fg-light)] transition-colors font-space-grotesk"
           >
-            TypeFast
+            Retype
           </Link>
 
           {/* Navigation */}
@@ -84,7 +84,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Footer */}
       <footer className="flex-shrink-0">
         <div className="text-center text-xs text-[var(--fg-muted)] py-2">
-          © 2025 TypeFast from{" "}
+          © 2025 Retype from{" "}
           <a
             href="https://nvix.io"
             target="_blank"

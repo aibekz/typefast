@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding TypeFast database...')
+  console.log('🌱 Seeding Retype database...')
 
   // Create sample user (this would normally come from auth.nvix.io)
   const user = await prisma.user.upsert({
@@ -11,7 +11,7 @@ async function main() {
     update: {},
     create: {
       authId: 'sample-user-123',
-      email: 'demo@typefast.com',
+      email: 'demo@retype.com',
       name: 'Demo User',
     }
   })
@@ -110,7 +110,7 @@ async function main() {
     })
   }
 
-  console.log('✅ TypeFast database seeded successfully!')
+  console.log('✅ Retype database seeded successfully!')
 }
 
 main()

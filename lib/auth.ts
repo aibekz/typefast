@@ -5,7 +5,7 @@ const AUTH_SERVICE_URL =
   (process.env.NODE_ENV === "production" 
     ? "https://auth.nvix.io" 
     : "http://localhost:3000");
-const APP_NAME = "typefast";
+const APP_NAME = "retype";
 
 export interface UserInfo {
   id: string;

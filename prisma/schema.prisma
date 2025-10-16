@@ -1,5 +1,5 @@
-// TypeFast Database Schema
-// This database stores TypeFast-specific data
+// Retype Database Schema
+// This database stores Retype-specific data
 // User authentication is handled by auth.nvix.io
 
 generator client {

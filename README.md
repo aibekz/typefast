@@ -1,10 +1,10 @@
-# TypeFast
+# Retype
 
 A modern, free online typing speed test application built with Next.js and React.
 
 ## 🚀 Live Demo
 
-Try it out: **[typefast.nvix.io](https://typefast.nvix.io)**
+Try it out: **[retype.nvix.io](https://retype.nvix.io)**
 
 ## ✨ Features
 
