@@ -1,7 +1,8 @@
 "use client";
 
 import { useAuth } from "../../contexts/AuthContext";
-import LoginButton from "./LoginButton";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -15,6 +16,13 @@ export default function AuthGuard({
   requireAuth = false,
 }: AuthGuardProps) {
   const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && requireAuth && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, isLoading, requireAuth, router]);
 
   if (isLoading) {
     return (
@@ -25,21 +33,7 @@ export default function AuthGuard({
   }
 
   if (requireAuth && !isAuthenticated) {
-    return (
-      fallback || (
-        <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Sign in required
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Please sign in to access this feature.
-            </p>
-            <LoginButton />
-          </div>
-        </div>
-      )
-    );
+    return fallback || null;
   }
 
   return <>{children}</>;
