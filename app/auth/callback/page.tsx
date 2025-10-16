@@ -15,7 +15,7 @@ export default function AuthCallbackPage() {
     const processCallback = async () => {
       // Check if this is a direct visit to /auth/callback without OAuth parameters
       const urlParams = new URLSearchParams(window.location.search);
-      const hasAuthParams = urlParams.has('token') || urlParams.has('code') || urlParams.has('state');
+      const hasAuthParams = urlParams.has('code') || urlParams.has('state');
       
       if (!hasAuthParams) {
         // If no OAuth parameters, redirect to home page

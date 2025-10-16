@@ -78,13 +78,14 @@ function _getCookie(name: string): string | null {
 
 /**
  * Handle login callback from auth.nvix.io
- * Now reads token from HTTP-only cookie via server-side API
+ * Uses secure OAuth 2.0 authorization code flow
  */
 export async function handleLoginCallback(): Promise<{
   token: string | null;
   error: string | null;
 }> {
   const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
   const state = urlParams.get("state");
   const error = urlParams.get("error");
 
@@ -99,29 +100,40 @@ export async function handleLoginCallback(): Promise<{
     return { token: null, error: "Invalid CSRF token" };
   }
 
+  // Check for authorization code
+  if (!code) {
+    return { token: null, error: "No authorization code received" };
+  }
+
   // Clean up CSRF token
   sessionStorage.removeItem("auth_csrf_token");
 
   try {
-    // Get token from server-side API (reads HTTP-only cookie)
-    const response = await fetch("/api/auth/callback", {
-      method: "GET",
-      credentials: "include", // Include cookies in request
+    // Exchange authorization code for JWT token
+    const response = await fetch("/api/auth/exchange", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        code,
+        app: APP_NAME,
+      }),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
       return {
         token: null,
-        error: errorData.error || "Failed to retrieve token",
+        error: errorData.error || "Failed to exchange authorization code",
       };
     }
 
     const data = await response.json();
     return { token: data.token, error: null };
   } catch (error) {
-    console.error("Failed to retrieve auth token:", error);
-    return { token: null, error: "Network error during authentication" };
+    console.error("Failed to exchange authorization code:", error);
+    return { token: null, error: "Network error during token exchange" };
   }
 }
 
