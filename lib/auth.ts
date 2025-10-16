@@ -142,7 +142,6 @@ export async function handleLoginCallback(): Promise<{
  */
 export async function validateToken(token: string): Promise<UserInfo> {
   try {
-    console.log("Validating token with auth service:", AUTH_SERVICE_URL);
     const response = await fetch(`${AUTH_SERVICE_URL}/api/verify`, {
       method: "POST",
       headers: {
@@ -151,11 +150,9 @@ export async function validateToken(token: string): Promise<UserInfo> {
       },
     });
 
-    console.log("Token validation response status:", response.status);
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error("Token validation failed:", errorData);
       throw new AuthError(
         errorData.error || "Token validation failed",
         "VALIDATION_FAILED",
@@ -163,10 +160,8 @@ export async function validateToken(token: string): Promise<UserInfo> {
     }
 
     const userInfo = await response.json();
-    console.log("Token validation successful, userInfo:", userInfo);
     return userInfo;
   } catch (error) {
-    console.error("Token validation error:", error);
     if (error instanceof AuthError) {
       throw error;
     }
