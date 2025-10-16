@@ -1,7 +1,10 @@
 import { nanoid } from "nanoid";
 
 const AUTH_SERVICE_URL =
-  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 
+  (process.env.NODE_ENV === "production" 
+    ? "https://auth.nvix.io" 
+    : "http://localhost:3000");
 const APP_NAME = "typefast";
 
 export interface UserInfo {
