@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["@vercel/analytics"],
   },
   turbopack: {
-    root: "/Users/aibekzhumabekov/Developer/nvixio-products/typefast",
     rules: {
       "*.svg": {
         loaders: ["@svgr/webpack"],
