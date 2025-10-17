@@ -42,11 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = getStoredToken();
     const storedUserInfo = getStoredUserInfo();
 
-    console.log(
-      "AuthContext refreshUser - token:",
-      token ? "exists" : "missing",
-    );
-    console.log("AuthContext refreshUser - storedUserInfo:", storedUserInfo);
 
     if (!token) {
       setAuthState({
@@ -58,19 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      console.log("AuthContext: Starting token validation...");
       // Validate token with auth service
       const userInfo = await validateToken(token);
-      console.log(
-        "AuthContext: Token validation successful, userInfo:",
-        userInfo,
-      );
 
       // Store/update Retype user profile (linked to NVIXIO user)
       try {
         // Extract NVIXIO user ID from JWT token (assuming it's in the token)
         const nvixioUserId = userInfo.id || userInfo.email; // Use email as fallback for NVIXIO user ID
-        console.log("AuthContext: NVIXIO user ID:", nvixioUserId);
 
         const existingRetypeUser =
           await getRetypeUserByNvixioId(nvixioUserId);
@@ -138,9 +127,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Listen for successful login events
     const handleLoginSuccess = () => {
-      console.log(
-        "AuthContext: Received login success event, refreshing user...",
-      );
       refreshUser();
     };
 
@@ -161,9 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (token && state && !error) {
         try {
-          console.log("Login callback - validating token:", token);
           const userInfo = await validateToken(token);
-          console.log("Login callback - userInfo:", userInfo);
           storeAuthData(token, userInfo);
 
           setAuthState({
