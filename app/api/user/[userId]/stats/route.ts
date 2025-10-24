@@ -26,7 +26,7 @@ export async function GET(
 
     // Verify the user owns this data
     try {
-      const { validateToken } = await import("../../../lib/auth");
+      const { validateToken } = await import("@/lib/auth");
       const userInfo = await validateToken(authToken);
 
       // Get the database user to verify ownership
