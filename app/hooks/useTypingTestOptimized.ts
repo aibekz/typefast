@@ -18,33 +18,30 @@ export const useTypingTestOptimized = ({
   // Separate concerns into focused hooks
   const stats = useTypingStats();
 
-  // Memoize the onTimeUp callback to prevent timer recreation
-  const handleTimeUp = useCallback(async () => {
-    setIsComplete(true);
-
-    // Save test result to database
-    const finalStats = stats.getFinalStats(duration);
-    const testResult = {
-      wpm: finalStats.wpm,
-      accuracy: finalStats.accuracy,
-      time: duration,
-      characters: stats.cumulativeStats.totalChars,
-      mistakes:
-        stats.cumulativeStats.totalChars - stats.cumulativeStats.correctChars,
-      testType: "time",
-      difficulty: "medium",
-    };
-
-    try {
-      await saveTestResult(testResult);
-    } catch (error) {
-      console.error("Failed to save test result:", error);
-    }
-  }, [duration, stats, saveTestResult]);
-
   const timer = useTimer({
     duration,
-    onTimeUp: handleTimeUp,
+    onTimeUp: async () => {
+      setIsComplete(true);
+
+      // Save test result to database
+      const finalStats = stats.getFinalStats(timer.timeElapsed);
+      const testResult = {
+        wpm: finalStats.wpm,
+        accuracy: finalStats.accuracy,
+        time: timer.timeElapsed,
+        characters: stats.cumulativeStats.totalChars,
+        mistakes:
+          stats.cumulativeStats.totalChars - stats.cumulativeStats.correctChars,
+        testType: "time",
+        difficulty: "medium",
+      };
+
+      try {
+        await saveTestResult(testResult);
+      } catch (error) {
+        console.error("Failed to save test result:", error);
+      }
+    },
   });
 
   const wordManager = useWordManager({ wordCount: 25 });
