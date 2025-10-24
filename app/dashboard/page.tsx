@@ -3,12 +3,13 @@
 import {
   BarChart3,
   Clock,
+  RefreshCw,
   Target,
   TrendingUp,
   Trophy,
   Zap,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 interface Test {
@@ -55,56 +56,48 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchStats = useCallback(async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Add cache-busting to ensure fresh data
+      const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      } else {
+        const errorData = await response.json();
+        console.error("Dashboard: API error:", errorData);
+        setStats(null);
+      }
+    } catch (error) {
+      console.error("Dashboard: Error fetching stats:", error);
+      setStats(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
+
   useEffect(() => {
-    const fetchStats = async () => {
-      if (!user?.id) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        // Add cache-busting to ensure fresh data
-        const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`);
-
-        if (response.ok) {
-          const data = await response.json();
-          setStats(data);
-        } else {
-          const errorData = await response.json();
-          console.error("Dashboard: API error:", errorData);
-        }
-      } catch (error) {
-        console.error("Dashboard: Error fetching stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
-  }, [user]);
+  }, [fetchStats]);
 
   // Refresh stats when component becomes visible (user navigates back to dashboard)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden && user?.id) {
-        const fetchStats = async () => {
-          try {
-            const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`);
-            if (response.ok) {
-              const data = await response.json();
-              setStats(data);
-            }
-          } catch (error) {
-            console.error("Dashboard: Error refreshing stats:", error);
-          }
-        };
         fetchStats();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [user?.id]);
+  }, [fetchStats, user?.id]);
 
   if (loading) {
     return (
@@ -131,13 +124,23 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--fg-accent)] mb-2 font-space-grotesk">
-            Welcome back, {user?.name || "User"}!
-          </h1>
-          <p className="text-[var(--fg-muted)] text-sm sm:text-base">
-            Here's your typing progress and statistics.
-          </p>
+        <div className="mb-6 sm:mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--fg-accent)] mb-2 font-space-grotesk">
+              Welcome back, {user?.name || "User"}!
+            </h1>
+            <p className="text-[var(--fg-muted)] text-sm sm:text-base">
+              Here's your typing progress and statistics.
+            </p>
+          </div>
+          <button
+            onClick={fetchStats}
+            disabled={loading}
+            className="flex items-center gap-2 px-3 py-2 text-sm bg-[var(--purple-button)] text-white rounded-lg hover:bg-[var(--purple-button-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
         </div>
 
         {/* Stats Grid */}
