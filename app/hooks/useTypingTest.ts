@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { loadWordList } from "../lib/wordLoader";
 import type { TypingStats, Word } from "../types";
 import { calculateStats } from "../utils/calculateStats";
+import { useSaveTestResult } from "./useSaveTestResult";
 
 // Inline utility function
 const formatTime = (seconds: number): string => {
@@ -35,6 +36,7 @@ export const useTypingTest = (duration: number = 60) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const { saveTestResult } = useSaveTestResult();
 
   // ===== WORD GENERATION =====
   const generateWords = useCallback(async () => {
@@ -60,13 +62,40 @@ export const useTypingTest = (duration: number = 60) => {
   }, []);
 
   // ===== TEST CONTROL =====
-  const endTest = useCallback(() => {
+  const endTest = useCallback(async () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     setIsActive(false);
     setIsComplete(true);
-  }, []);
+
+    // Save test result to database
+    const totalCorrectChars = cumulativeStats.correctChars + stats.correctChars;
+    const totalTotalChars = cumulativeStats.totalChars + stats.totalChars;
+    const finalStats = calculateStats(
+      totalCorrectChars,
+      totalTotalChars,
+      timeElapsed,
+    );
+
+    if (timeElapsed > 0) {
+      const testResult = {
+        wpm: finalStats.wpm,
+        accuracy: finalStats.accuracy,
+        time: timeElapsed,
+        characters: totalTotalChars,
+        mistakes: totalTotalChars - totalCorrectChars,
+        testType: "time",
+        difficulty: "medium",
+      };
+
+      try {
+        await saveTestResult(testResult);
+      } catch (error) {
+        console.error("Failed to save test result:", error);
+      }
+    }
+  }, [cumulativeStats, stats, timeElapsed, saveTestResult]);
 
   const resetTest = useCallback(() => {
     setIsActive(false);

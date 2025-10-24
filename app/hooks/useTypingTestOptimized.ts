@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useSaveTestResult } from "./useSaveTestResult";
 import { useTimer } from "./useTimer";
 import { useTypingInput } from "./useTypingInput";
 import { useTypingStats } from "./useTypingStats";
@@ -12,20 +13,41 @@ export const useTypingTestOptimized = ({
   duration,
 }: UseTypingTestOptimizedProps) => {
   const [isComplete, setIsComplete] = useState(false);
-
-  // Memoize the onTimeUp callback to prevent timer recreation
-  const handleTimeUp = useCallback(() => {
-    setIsComplete(true);
-  }, []);
+  const { saveTestResult } = useSaveTestResult();
 
   // Separate concerns into focused hooks
+  const stats = useTypingStats();
+
+  // Memoize the onTimeUp callback to prevent timer recreation
+  const handleTimeUp = useCallback(async () => {
+    setIsComplete(true);
+
+    // Save test result to database
+    const finalStats = stats.getFinalStats(duration);
+    const testResult = {
+      wpm: finalStats.wpm,
+      accuracy: finalStats.accuracy,
+      time: duration,
+      characters: stats.cumulativeStats.totalChars,
+      mistakes:
+        stats.cumulativeStats.totalChars - stats.cumulativeStats.correctChars,
+      testType: "time",
+      difficulty: "medium",
+    };
+
+    try {
+      await saveTestResult(testResult);
+    } catch (error) {
+      console.error("Failed to save test result:", error);
+    }
+  }, [duration, stats, saveTestResult]);
+
   const timer = useTimer({
     duration,
     onTimeUp: handleTimeUp,
   });
 
   const wordManager = useWordManager({ wordCount: 25 });
-  const stats = useTypingStats();
 
   const typingInput = useTypingInput({
     onInputChange: useCallback(
