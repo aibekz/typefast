@@ -1,10 +1,10 @@
 "use client";
 
+import { Check } from "lucide-react";
 import AuthGuard from "../../components/auth/AuthGuard";
-import { useAuth } from "../../contexts/AuthContext";
 
 export default function MembershipPage() {
-  const { user } = useAuth();
+  // const { } = useAuth(); // Removed unused destructuring
 
   // Mock user stats - in a real app, this would come from an API
   const userStats = {
@@ -200,9 +200,12 @@ export default function MembershipPage() {
                     </div>
 
                     <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center space-x-3">
-                          <span className="text-[var(--matrix-green)]">✓</span>
+                      {plan.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-center space-x-3"
+                        >
+                          <Check className="h-4 w-4 text-[var(--matrix-green)]" />
                           <span className="text-sm text-[var(--fg-light)]">
                             {feature}
                           </span>
@@ -211,6 +214,7 @@ export default function MembershipPage() {
                     </ul>
 
                     <button
+                      type="button"
                       className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${plan.buttonStyle}`}
                       disabled={plan.current}
                     >

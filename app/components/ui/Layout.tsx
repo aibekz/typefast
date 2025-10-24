@@ -54,23 +54,9 @@ export default function Layout({ children }: LayoutProps) {
           ) : (
             <Link
               href="/login"
-              className="p-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors"
-              title="Sign In"
+              className="px-4 py-2 rounded-lg hover:bg-[var(--bg-card)] transition-colors text-[var(--fg-muted)] hover:text-[var(--fg-light)]"
             >
-              <svg 
-                className="w-6 h-6 text-[var(--fg-muted)] hover:text-[var(--fg-light)]" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                aria-label="Sign In"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" 
-                />
-              </svg>
+              Sign In
             </Link>
           )}
         </div>

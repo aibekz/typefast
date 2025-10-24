@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error fetching user:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     console.error("Error details:", errorMessage);
     return NextResponse.json(
       { error: "Internal server error", details: errorMessage },
@@ -70,7 +71,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error creating user:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     console.error("Error details:", errorMessage);
     return NextResponse.json(
       { error: "Internal server error", details: errorMessage },
@@ -113,7 +115,8 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error updating user:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     console.error("Error details:", errorMessage);
     return NextResponse.json(
       { error: "Internal server error", details: errorMessage },

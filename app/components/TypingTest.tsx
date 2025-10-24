@@ -68,6 +68,7 @@ function TypingTest() {
           <div className="flex-shrink-0">
             <Toolbar
               duration={duration}
+              isActive={isActive}
               onDurationChange={adjustDuration}
               onSetCustomDuration={setCustomDuration}
               onReset={resetTest}

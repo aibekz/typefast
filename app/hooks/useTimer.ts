@@ -23,7 +23,7 @@ export const useTimer = ({ duration, onTimeUp }: UseTimerProps) => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const startTimer = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isActive: true,
       startTime: Date.now(),
@@ -31,7 +31,7 @@ export const useTimer = ({ duration, onTimeUp }: UseTimerProps) => {
   }, []);
 
   const stopTimer = useCallback(() => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isActive: false,
     }));
@@ -57,10 +57,10 @@ export const useTimer = ({ duration, onTimeUp }: UseTimerProps) => {
     }
 
     timerRef.current = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - state.startTime!) / 1000);
+      const elapsed = Math.floor((Date.now() - (state.startTime || 0)) / 1000);
       const remaining = Math.max(0, duration - elapsed);
 
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         timeElapsed: elapsed,
         timeRemaining: remaining,

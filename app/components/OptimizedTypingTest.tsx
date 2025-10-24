@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useTypingTestOptimized } from "../hooks/useTypingTestOptimized";
+import OptimizedTypingArea from "./ui/OptimizedTypingArea";
 import Results from "./ui/Results";
 import Toolbar from "./ui/Toolbar";
-import OptimizedTypingArea from "./ui/OptimizedTypingArea";
 
 function OptimizedTypingTest() {
   const [duration, setDuration] = useState(60);
@@ -68,6 +68,7 @@ function OptimizedTypingTest() {
           <div className="flex-shrink-0">
             <Toolbar
               duration={duration}
+              isActive={isActive}
               onDurationChange={adjustDuration}
               onSetCustomDuration={setCustomDuration}
               onReset={resetTest}

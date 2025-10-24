@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import { calculateStats } from "../utils/calculateStats";
 import type { TypingStats } from "../types";
+import { calculateStats } from "../utils/calculateStats";
 
 interface CharacterStats {
   correctChars: number;
@@ -25,41 +25,40 @@ export const useTypingStats = () => {
     totalChars: 0,
   });
 
-  const updateCurrentWordStats = useCallback((
-    input: string,
-    wordText: string,
-    wordIndex: number
-  ) => {
-    const newIncorrectChars = new Set(currentStats.incorrectChars);
-    
-    // Clear incorrect chars for current word
-    for (const key of newIncorrectChars) {
-      if (key.startsWith(`${wordIndex}-`)) {
-        newIncorrectChars.delete(key);
+  const updateCurrentWordStats = useCallback(
+    (input: string, wordText: string, wordIndex: number) => {
+      const newIncorrectChars = new Set(currentStats.incorrectChars);
+
+      // Clear incorrect chars for current word
+      for (const key of newIncorrectChars) {
+        if (key.startsWith(`${wordIndex}-`)) {
+          newIncorrectChars.delete(key);
+        }
       }
-    }
 
-    let correctCount = 0;
-    const maxLength = Math.min(input.length, wordText.length);
+      let correctCount = 0;
+      const maxLength = Math.min(input.length, wordText.length);
 
-    for (let i = 0; i < maxLength; i++) {
-      const isCorrect = input[i].toLowerCase() === wordText[i].toLowerCase();
-      if (isCorrect) {
-        correctCount++;
-      } else {
-        newIncorrectChars.add(`${wordIndex}-${i}`);
+      for (let i = 0; i < maxLength; i++) {
+        const isCorrect = input[i].toLowerCase() === wordText[i].toLowerCase();
+        if (isCorrect) {
+          correctCount++;
+        } else {
+          newIncorrectChars.add(`${wordIndex}-${i}`);
+        }
       }
-    }
 
-    setCurrentStats({
-      correctChars: correctCount,
-      totalChars: input.length,
-      incorrectChars: newIncorrectChars,
-    });
-  }, [currentStats.incorrectChars]);
+      setCurrentStats({
+        correctChars: correctCount,
+        totalChars: input.length,
+        incorrectChars: newIncorrectChars,
+      });
+    },
+    [currentStats.incorrectChars],
+  );
 
   const completeWord = useCallback(() => {
-    setCumulativeStats(prev => ({
+    setCumulativeStats((prev) => ({
       correctChars: prev.correctChars + currentStats.correctChars,
       totalChars: prev.totalChars + currentStats.totalChars,
     }));
@@ -83,12 +82,17 @@ export const useTypingStats = () => {
     });
   }, []);
 
-  const getFinalStats = useCallback((timeElapsed: number): TypingStats => {
-    const totalCorrectChars = cumulativeStats.correctChars + currentStats.correctChars;
-    const totalTotalChars = cumulativeStats.totalChars + currentStats.totalChars;
+  const getFinalStats = useCallback(
+    (timeElapsed: number): TypingStats => {
+      const totalCorrectChars =
+        cumulativeStats.correctChars + currentStats.correctChars;
+      const totalTotalChars =
+        cumulativeStats.totalChars + currentStats.totalChars;
 
-    return calculateStats(totalCorrectChars, totalTotalChars, timeElapsed);
-  }, [cumulativeStats, currentStats]);
+      return calculateStats(totalCorrectChars, totalTotalChars, timeElapsed);
+    },
+    [cumulativeStats, currentStats],
+  );
 
   // Memoized stats to prevent unnecessary recalculations
   const finalStats = useMemo(() => {

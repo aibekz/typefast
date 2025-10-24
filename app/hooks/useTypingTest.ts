@@ -60,13 +60,13 @@ export const useTypingTest = (duration: number = 60) => {
   }, []);
 
   // ===== TEST CONTROL =====
-  const endTest = () => {
+  const endTest = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     setIsActive(false);
     setIsComplete(true);
-  };
+  }, []);
 
   const resetTest = useCallback(() => {
     setIsActive(false);
@@ -233,7 +233,7 @@ export const useTypingTest = (duration: number = 60) => {
       for (let i = 0; i < (prevWord?.text.length || 0); i++) {
         if (i < prevWord?.text.length) {
           const isCorrect =
-            prevWord.text[i].toLowerCase() === prevWord.text[i].toLowerCase();
+            input[i]?.toLowerCase() === prevWord.text[i].toLowerCase();
           if (isCorrect) {
             correctCount++;
           } else {
@@ -254,7 +254,7 @@ export const useTypingTest = (duration: number = 60) => {
   // ===== EFFECTS =====
   useEffect(() => {
     generateWords();
-  }, []);
+  }, [generateWords]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -267,6 +267,10 @@ export const useTypingTest = (duration: number = 60) => {
       const target = e.target as HTMLElement;
       if (
         !target.closest("[data-typing-area]") &&
+        !target.closest("[data-typing-controls]") &&
+        !target.closest("input") &&
+        !target.closest("button") &&
+        !target.closest("[role='dialog']") &&
         !isComplete &&
         timeRemaining > 0
       ) {

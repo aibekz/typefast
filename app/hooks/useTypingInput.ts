@@ -16,40 +16,49 @@ export const useTypingInput = ({
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isActive) return;
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!isActive) return;
 
-    const value = e.target.value;
-    setInput(value);
-    onInputChange(value);
-  }, [isActive, onInputChange]);
+      const value = e.target.value;
+      setInput(value);
+      onInputChange(value);
+    },
+    [isActive, onInputChange],
+  );
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isActive) {
-      e.preventDefault();
-      return;
-    }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!isActive) {
+        e.preventDefault();
+        return;
+      }
 
-    if (e.key === "Backspace" && input.length === 0) {
-      e.preventDefault();
-      onBackspace();
-      return;
-    }
+      if (e.key === "Backspace" && input.length === 0) {
+        e.preventDefault();
+        onBackspace();
+        return;
+      }
 
-    if (e.key === " ") {
-      e.preventDefault();
-      onWordComplete();
-      setInput("");
-      return;
-    }
-  }, [isActive, input.length, onBackspace, onWordComplete]);
+      if (e.key === " ") {
+        e.preventDefault();
+        onWordComplete();
+        setInput("");
+        return;
+      }
+    },
+    [isActive, input.length, onBackspace, onWordComplete],
+  );
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isActive) {
-      e.preventDefault();
-      return;
-    }
-  }, [isActive]);
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!isActive) {
+        e.preventDefault();
+        return;
+      }
+    },
+    [isActive],
+  );
 
   const focusInput = useCallback(() => {
     if (inputRef.current && isActive) {

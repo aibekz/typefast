@@ -1,9 +1,9 @@
 import { nanoid } from "nanoid";
 
 const AUTH_SERVICE_URL =
-  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL || 
-  (process.env.NODE_ENV === "production" 
-    ? "https://auth.nvix.io" 
+  process.env.NEXT_PUBLIC_AUTH_SERVICE_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://auth.nvix.io"
     : "http://localhost:3000");
 const APP_NAME = "retype";
 
@@ -149,7 +149,6 @@ export async function validateToken(token: string): Promise<UserInfo> {
         "Content-Type": "application/json",
       },
     });
-
 
     if (!response.ok) {
       const errorData = await response.json();

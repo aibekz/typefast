@@ -1,44 +1,56 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTimer } from "./useTimer";
-import { useWordManager } from "./useWordManager";
-import { useTypingStats } from "./useTypingStats";
 import { useTypingInput } from "./useTypingInput";
+import { useTypingStats } from "./useTypingStats";
+import { useWordManager } from "./useWordManager";
 
 interface UseTypingTestOptimizedProps {
   duration: number;
 }
 
-export const useTypingTestOptimized = ({ duration }: UseTypingTestOptimizedProps) => {
+export const useTypingTestOptimized = ({
+  duration,
+}: UseTypingTestOptimizedProps) => {
+  const [isComplete, setIsComplete] = useState(false);
+
+  // Memoize the onTimeUp callback to prevent timer recreation
+  const handleTimeUp = useCallback(() => {
+    setIsComplete(true);
+  }, []);
+
   // Separate concerns into focused hooks
   const timer = useTimer({
     duration,
-    onTimeUp: () => {
-      setIsComplete(true);
-    },
+    onTimeUp: handleTimeUp,
   });
 
   const wordManager = useWordManager({ wordCount: 25 });
   const stats = useTypingStats();
 
-  const [isComplete, setIsComplete] = useState(false);
-
   const typingInput = useTypingInput({
-    onInputChange: useCallback((input: string) => {
-      const currentWord = wordManager.getCurrentWord();
-      if (currentWord) {
-        stats.updateCurrentWordStats(input, currentWord.text, wordManager.currentWordIndex);
-      }
-    }, [wordManager, stats]),
-    
+    onInputChange: useCallback(
+      (input: string) => {
+        const currentWord = wordManager.getCurrentWord();
+        if (currentWord) {
+          stats.updateCurrentWordStats(
+            input,
+            currentWord.text,
+            wordManager.currentWordIndex,
+          );
+        }
+      },
+      [wordManager, stats],
+    ),
+
     onWordComplete: useCallback(() => {
       stats.completeWord();
       wordManager.nextWord();
     }, [stats, wordManager]),
-    
+
     onBackspace: useCallback(() => {
       wordManager.previousWord();
     }, [wordManager]),
-    
+
     isActive: timer.isActive,
   });
 
@@ -74,6 +86,10 @@ export const useTypingTestOptimized = ({ duration }: UseTypingTestOptimizedProps
       const target = e.target as HTMLElement;
       if (
         !target.closest("[data-typing-area]") &&
+        !target.closest("[data-typing-controls]") &&
+        !target.closest("input") &&
+        !target.closest("button") &&
+        !target.closest("[role='dialog']") &&
         !isComplete &&
         timer.timeRemaining > 0
       ) {

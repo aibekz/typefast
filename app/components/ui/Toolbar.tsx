@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 interface ToolbarProps {
   duration: number;
+  isActive: boolean;
   onDurationChange: (delta: number) => void;
   onSetCustomDuration: (duration: number) => void;
   onReset: () => void;
@@ -9,6 +10,7 @@ interface ToolbarProps {
 
 function Toolbar({
   duration,
+  isActive,
   onDurationChange,
   onSetCustomDuration,
   onReset,
@@ -52,18 +54,24 @@ function Toolbar({
 
   return (
     <>
-      <div className="flex flex-row justify-center items-center gap-2 max-w-4xl mx-auto px-4 py-4">
+      <div
+        className="flex flex-row justify-center items-center gap-2 max-w-4xl mx-auto px-4 py-4"
+        data-typing-controls
+      >
         {/* Time Presets */}
         <div className="flex items-center gap-2">
           {durationPresets.map((seconds) => (
             <button
               key={seconds}
               type="button"
+              disabled={isActive}
               onClick={() => handlePresetTime(seconds)}
               className={`px-3 py-1 text-sm font-mono transition-all duration-200 rounded ${
                 duration === seconds
                   ? "bg-[var(--purple-button)] text-white"
-                  : "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:bg-[var(--border-light)] hover:text-[var(--fg-light)]"
+                  : isActive
+                    ? "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] opacity-50 cursor-not-allowed"
+                    : "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:bg-[var(--border-light)] hover:text-[var(--fg-light)]"
               }`}
             >
               {seconds}
@@ -71,8 +79,13 @@ function Toolbar({
           ))}
           <button
             type="button"
+            disabled={isActive}
             onClick={() => setShowCustomModal(true)}
-            className="px-3 py-1 text-sm bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:bg-[var(--border-light)] hover:text-[var(--fg-light)] transition-all duration-200 rounded font-mono"
+            className={`px-3 py-1 text-sm font-mono transition-all duration-200 rounded ${
+              isActive
+                ? "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] opacity-50 cursor-not-allowed"
+                : "bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:bg-[var(--border-light)] hover:text-[var(--fg-light)]"
+            }`}
           >
             custom
           </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthError, handleLoginCallback } from "../../../lib/auth";
@@ -15,11 +16,11 @@ export default function AuthCallbackPage() {
     const processCallback = async () => {
       // Check if this is a direct visit to /auth/callback without OAuth parameters
       const urlParams = new URLSearchParams(window.location.search);
-      const hasAuthParams = urlParams.has('code') || urlParams.has('state');
-      
+      const hasAuthParams = urlParams.has("code") || urlParams.has("state");
+
       if (!hasAuthParams) {
         // If no OAuth parameters, redirect to home page
-        router.push('/');
+        router.push("/");
         return;
       }
 
@@ -87,16 +88,7 @@ export default function AuthCallbackPage() {
     return (
       <div className="h-screen bg-[var(--bg-dark)] flex flex-col justify-center items-center overflow-hidden">
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 text-[var(--matrix-green)]">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
+          <CheckCircle className="mx-auto h-12 w-12 text-[var(--matrix-green)]" />
           <h2 className="mt-6 text-3xl font-bold text-[var(--fg-light)]">
             Login Successful!
           </h2>
@@ -111,16 +103,7 @@ export default function AuthCallbackPage() {
   return (
     <div className="h-screen bg-[var(--bg-dark)] flex flex-col justify-center items-center overflow-hidden">
       <div className="text-center">
-        <div className="mx-auto h-12 w-12 text-red-500">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-            />
-          </svg>
-        </div>
+        <XCircle className="mx-auto h-12 w-12 text-red-500" />
         <h2 className="mt-6 text-3xl font-bold text-[var(--fg-light)]">
           Authentication Failed
         </h2>
@@ -134,14 +117,18 @@ export default function AuthCallbackPage() {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => (window.location.href = "/login")}
+              onClick={() => {
+                window.location.href = "/login";
+              }}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--purple-button)] hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--purple-button)]"
             >
               Try Again
             </button>
             <button
               type="button"
-              onClick={() => (window.location.href = "/")}
+              onClick={() => {
+                window.location.href = "/";
+              }}
               className="mt-3 w-full flex justify-center py-2 px-4 border border-[var(--fg-muted)] rounded-md shadow-sm text-sm font-medium text-[var(--fg-light)] bg-[var(--bg-card)] hover:bg-[var(--bg-hover)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--purple-button)]"
             >
               Go Home

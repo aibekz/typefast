@@ -40,8 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = useCallback(async () => {
     const token = getStoredToken();
-    const storedUserInfo = getStoredUserInfo();
-
+    const _storedUserInfo = getStoredUserInfo();
 
     if (!token) {
       setAuthState({
@@ -61,8 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Extract NVIXIO user ID from JWT token (assuming it's in the token)
         const nvixioUserId = userInfo.id || userInfo.email; // Use email as fallback for NVIXIO user ID
 
-        const existingRetypeUser =
-          await getRetypeUserByNvixioId(nvixioUserId);
+        const existingRetypeUser = await getRetypeUserByNvixioId(nvixioUserId);
         if (existingRetypeUser) {
           // Update existing Retype user profile
           await updateRetypeUser(nvixioUserId, {

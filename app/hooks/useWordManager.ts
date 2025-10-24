@@ -6,7 +6,9 @@ interface UseWordManagerProps {
   wordCount?: number;
 }
 
-export const useWordManager = ({ wordCount = 25 }: UseWordManagerProps = {}) => {
+export const useWordManager = ({
+  wordCount = 25,
+}: UseWordManagerProps = {}) => {
   const [words, setWords] = useState<Word[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -16,15 +18,16 @@ export const useWordManager = ({ wordCount = 25 }: UseWordManagerProps = {}) => 
     try {
       const wordList = await loadWordList();
       const newWords: Word[] = [];
-      
+
       for (let i = 0; i < wordCount; i++) {
-        const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
+        const randomWord =
+          wordList[Math.floor(Math.random() * wordList.length)];
         newWords.push({
           text: randomWord,
           status: "pending",
         });
       }
-      
+
       setWords(newWords);
     } catch (error) {
       console.error("Error generating words:", error);
@@ -40,21 +43,21 @@ export const useWordManager = ({ wordCount = 25 }: UseWordManagerProps = {}) => 
   }, [wordCount]);
 
   const nextWord = useCallback(() => {
-    setCurrentWordIndex(prev => {
+    setCurrentWordIndex((prev) => {
       const nextIndex = prev + 1;
-      
+
       // If we've completed all words, generate new ones
       if (nextIndex >= words.length) {
         generateWords();
         return 0;
       }
-      
+
       return nextIndex;
     });
   }, [words.length, generateWords]);
 
   const previousWord = useCallback(() => {
-    setCurrentWordIndex(prev => Math.max(0, prev - 1));
+    setCurrentWordIndex((prev) => Math.max(0, prev - 1));
   }, []);
 
   const resetWords = useCallback(() => {

@@ -39,13 +39,16 @@ class PerformanceMonitor {
 
   endKeystroke() {
     if (this.keystrokeStartTime > 0) {
-      this.metrics.keystrokeLatency = performance.now() - this.keystrokeStartTime;
+      this.metrics.keystrokeLatency =
+        performance.now() - this.keystrokeStartTime;
     }
   }
 
   updateMemoryUsage() {
-    if ('memory' in performance) {
-      this.metrics.memoryUsage = (performance as any).memory.usedJSHeapSize;
+    if ("memory" in performance) {
+      this.metrics.memoryUsage = (
+        performance as { memory: { usedJSHeapSize: number } }
+      ).memory.usedJSHeapSize;
     }
   }
 
@@ -65,11 +68,15 @@ class PerformanceMonitor {
   }
 
   logMetrics() {
-    console.group('🚀 Typing Test Performance');
+    console.group("🚀 Typing Test Performance");
     console.log(`Render Time: ${this.metrics.renderTime.toFixed(2)}ms`);
-    console.log(`Keystroke Latency: ${this.metrics.keystrokeLatency.toFixed(2)}ms`);
+    console.log(
+      `Keystroke Latency: ${this.metrics.keystrokeLatency.toFixed(2)}ms`,
+    );
     console.log(`Component Renders: ${this.metrics.componentRenders}`);
-    console.log(`Memory Usage: ${(this.metrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
+    console.log(
+      `Memory Usage: ${(this.metrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`,
+    );
     console.groupEnd();
   }
 }
