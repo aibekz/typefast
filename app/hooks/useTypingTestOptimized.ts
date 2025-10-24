@@ -40,12 +40,7 @@ export const useTypingTestOptimized = ({
       };
 
       try {
-        const result = await saveTestResult(testResult);
-        if (result.success) {
-          console.log("Test result saved successfully");
-        } else {
-          console.error("Failed to save test result:", result.error);
-        }
+        await saveTestResult(testResult);
       } catch (error) {
         console.error("Failed to save test result:", error);
       }

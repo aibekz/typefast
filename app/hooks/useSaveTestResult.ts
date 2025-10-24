@@ -17,12 +17,10 @@ export const useSaveTestResult = () => {
   const saveTestResult = useCallback(
     async (result: TestResult) => {
       if (!user?.id) {
-        console.error("SaveTestResult: User not authenticated", { user });
         return { success: false, error: "User not authenticated" };
       }
 
       try {
-        console.log("SaveTestResult: Attempting to save test for user:", user.id, result);
         const response = await fetch(`/api/user/${user.id}/tests`, {
           method: "POST",
           headers: {
@@ -33,15 +31,12 @@ export const useSaveTestResult = () => {
 
         if (!response.ok) {
           const errorData = await response.json();
-          console.error("SaveTestResult: API error:", errorData);
           throw new Error(errorData.error || "Failed to save test result");
         }
 
         const data = await response.json();
-        console.log("SaveTestResult: Test saved successfully:", data);
         return { success: true, data };
       } catch (error) {
-        console.error("SaveTestResult: Error saving test:", error);
         return {
           success: false,
           error: error instanceof Error ? error.message : "Unknown error",
