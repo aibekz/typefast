@@ -1,10 +1,10 @@
 "use client";
 
+import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import UserMenu from "../auth/UserMenu";
-import { AlertCircle } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -70,8 +70,11 @@ export default function Layout({ children }: LayoutProps) {
             <AlertCircle className="h-5 w-5 text-[var(--fg-muted)] flex-shrink-0" />
             <div className="flex-1">
               <p className="text-sm text-[var(--fg-muted)]">
-                <strong>Guest Mode:</strong> Your results won't be saved. 
-                <a href="/login" className="text-[var(--purple-button)] hover:underline ml-1">
+                <strong>Guest Mode:</strong> Your results won't be saved.
+                <a
+                  href="/login"
+                  className="text-[var(--purple-button)] hover:underline ml-1"
+                >
                   Sign in to track your progress
                 </a>
               </p>

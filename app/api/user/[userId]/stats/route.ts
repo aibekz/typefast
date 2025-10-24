@@ -16,8 +16,9 @@ export async function GET(
     }
 
     // Verify authentication - check both cookies and Authorization header
-    const authToken = request.cookies.get("auth_token")?.value || 
-                     request.headers.get("authorization")?.replace("Bearer ", "");
+    const authToken =
+      request.cookies.get("auth_token")?.value ||
+      request.headers.get("authorization")?.replace("Bearer ", "");
     if (!authToken) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -41,7 +42,7 @@ export async function GET(
           { status: 403 },
         );
       }
-    } catch (authError) {
+    } catch (_authError) {
       return NextResponse.json(
         { error: "Invalid authentication" },
         { status: 401 },
@@ -118,7 +119,10 @@ export async function GET(
         : 0;
 
     // Calculate total time spent (in seconds, then convert to minutes)
-    const totalTimeSpentSeconds = allTests.reduce((sum, test) => sum + test.time, 0);
+    const totalTimeSpentSeconds = allTests.reduce(
+      (sum, test) => sum + test.time,
+      0,
+    );
     const totalTimeSpent = totalTimeSpentSeconds / 60;
 
     // Get recent progress trend

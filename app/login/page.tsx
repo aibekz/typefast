@@ -1,8 +1,8 @@
 "use client";
 
-import { useAuth } from "../contexts/AuthContext";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const { login, isLoading, isAuthenticated } = useAuth();

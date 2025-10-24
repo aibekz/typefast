@@ -23,6 +23,34 @@ import {
   updateRetypeUser,
 } from "../../lib/database";
 
+// Cookie helper functions
+const setCookie = (name: string, value: string, maxAge: number) => {
+  if (typeof document !== "undefined" && "cookieStore" in document) {
+    // Use Cookie Store API if available
+    document.cookieStore.set(name, value, {
+      maxAge,
+      path: "/",
+      secure: true,
+      sameSite: "strict",
+    });
+  } else {
+    // Fallback to direct assignment
+    // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API
+    document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; secure; samesite=strict`;
+  }
+};
+
+const deleteCookie = (name: string) => {
+  if (typeof document !== "undefined" && "cookieStore" in document) {
+    // Use Cookie Store API if available
+    document.cookieStore.delete(name, { path: "/" });
+  } else {
+    // Fallback to direct assignment
+    // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  }
+};
+
 interface AuthContextType extends AuthState {
   login: () => void;
   logout: () => void;
@@ -96,18 +124,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Update stored user info
       storeAuthData(token, userInfo);
-      
+
       // Also set cookie for API routes that expect cookies
-      document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+      setCookie("auth_token", token, 7 * 24 * 60 * 60);
     } catch (error) {
       console.error("Token validation failed:", error);
 
       // Clear invalid auth data
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user_info");
-      
+
       // Clear cookies
-      document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      deleteCookie("auth_token");
 
       setAuthState({
         user: null,
@@ -124,10 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleLogout = useCallback(() => {
     logout();
-    
+
     // Clear cookies
-    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    
+    deleteCookie("auth_token");
+
     setAuthState({
       user: null,
       isLoading: false,
@@ -195,7 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
 
           // Also set cookie for API routes that expect cookies
-          document.cookie = `auth_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; secure; samesite=strict`;
+          setCookie("auth_token", token, 7 * 24 * 60 * 60);
 
           // Clean up URL
           window.history.replaceState(

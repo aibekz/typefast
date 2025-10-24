@@ -66,13 +66,16 @@ export default function DashboardPage() {
     try {
       // Get auth token from localStorage
       const authToken = localStorage.getItem("auth_token");
-      
+
       // Add cache-busting to ensure fresh data
-      const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`, {
-        headers: {
-          ...(authToken && { Authorization: `Bearer ${authToken}` }),
+      const response = await fetch(
+        `/api/user/${user.id}/stats?t=${Date.now()}`,
+        {
+          headers: {
+            ...(authToken && { Authorization: `Bearer ${authToken}` }),
+          },
         },
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -102,8 +105,9 @@ export default function DashboardPage() {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [fetchStats, user?.id]);
 
   if (loading) {
@@ -131,169 +135,169 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
-        <div className="mb-6 sm:mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--fg-accent)] mb-2 font-space-grotesk">
-              Welcome back, {user?.name || "User"}!
-            </h1>
-            <p className="text-[var(--fg-muted)] text-sm sm:text-base">
-              Here's your typing progress and statistics.
-            </p>
-          </div>
-          <button
-            onClick={fetchStats}
-            disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-[var(--purple-button)] text-white rounded-lg hover:bg-[var(--purple-button-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+      <div className="mb-6 sm:mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--fg-accent)] mb-2 font-space-grotesk">
+            Welcome back, {user?.name || "User"}!
+          </h1>
+          <p className="text-[var(--fg-muted)] text-sm sm:text-base">
+            Here's your typing progress and statistics.
+          </p>
         </div>
+        <button
+          type="button"
+          onClick={fetchStats}
+          disabled={loading}
+          className="flex items-center gap-2 px-3 py-2 text-sm bg-[var(--purple-button)] text-white rounded-lg hover:bg-[var(--purple-button-hover)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          Refresh
+        </button>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-          <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-[var(--fg-muted)] text-sm">Total Tests</p>
-                <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
-                  {stats?.totalTests || 0}
-                </p>
-              </div>
-              <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--purple-button)] flex-shrink-0" />
-            </div>
-          </div>
-
-          <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-[var(--fg-muted)] text-sm">Average WPM</p>
-                <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
-                  {stats?.averageWpm || 0}
-                </p>
-              </div>
-              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--matrix-green)] flex-shrink-0" />
-            </div>
-          </div>
-
-          <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-[var(--fg-muted)] text-sm">Best WPM</p>
-                <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
-                  {stats?.bestWpm || 0}
-                </p>
-              </div>
-              <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--matrix-green)] flex-shrink-0" />
-            </div>
-          </div>
-
-          <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
-            <div className="flex items-center justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="text-[var(--fg-muted)] text-sm">Accuracy</p>
-                <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
-                  {stats?.averageAccuracy || 0}%
-                </p>
-              </div>
-              <Target className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--purple-button)] flex-shrink-0" />
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity and Achievements */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-          {/* Recent Tests */}
-          <div className="bg-[var(--bg-card)] rounded-lg p-6 border border-[var(--border)] min-h-[200px]">
-            <h3 className="text-lg font-semibold text-[var(--fg-light)] mb-4 flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-[var(--purple-button)]" />
-              Recent Tests
-            </h3>
-            {stats?.recentTests && stats.recentTests.length > 0 ? (
-              <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                {stats.recentTests.slice(0, 5).map((test) => (
-                  <div
-                    key={test.id}
-                    className="flex justify-between items-center py-2 border-b border-[var(--border)] last:border-b-0"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[var(--fg-light)] font-medium">
-                        {test.wpm} WPM
-                      </p>
-                      <p className="text-[var(--fg-muted)] text-sm">
-                        {test.accuracy}% accuracy
-                      </p>
-                    </div>
-                    <div className="text-right flex-shrink-0 ml-4">
-                      <p className="text-[var(--fg-muted)] text-sm">
-                        {new Date(test.createdAt).toLocaleDateString()}
-                      </p>
-                      <p className="text-[var(--fg-muted)] text-xs">
-                        {test.time}s
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[var(--fg-muted)]">No recent tests found.</p>
-            )}
-          </div>
-
-          {/* Achievements */}
-          <div className="bg-[var(--bg-card)] rounded-lg p-6 border border-[var(--border)] min-h-[200px]">
-            <h3 className="text-lg font-semibold text-[var(--fg-light)] mb-4 flex items-center">
-              <Trophy className="h-5 w-5 mr-2 text-[var(--matrix-green)]" />
-              Recent Achievements
-            </h3>
-            {stats?.achievements && stats.achievements.length > 0 ? (
-              <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                {stats.achievements.slice(0, 5).map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className="flex items-center py-2 border-b border-[var(--border)] last:border-b-0"
-                  >
-                    <div className="w-8 h-8 bg-[var(--matrix-green)] rounded-full flex items-center justify-center mr-3 flex-shrink-0">
-                      <Trophy className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[var(--fg-light)] font-medium truncate">
-                        {achievement.title}
-                      </p>
-                      <p className="text-[var(--fg-muted)] text-sm truncate">
-                        {achievement.description}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[var(--fg-muted)]">
-                No achievements yet. Keep practicing!
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-[var(--fg-muted)] text-sm">Total Tests</p>
+              <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
+                {stats?.totalTests || 0}
               </p>
-            )}
+            </div>
+            <BarChart3 className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--purple-button)] flex-shrink-0" />
           </div>
         </div>
 
-        {/* Time Spent */}
-        {stats?.totalTimeSpent && stats.totalTimeSpent > 0 && (
-          <div className="mt-6 bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
-            <h3 className="text-lg font-semibold text-[var(--fg-light)] mb-4 flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-[var(--purple-button)] flex-shrink-0" />
-              Time Invested
-            </h3>
-            <p className="text-[var(--fg-muted)] text-sm sm:text-base">
-              You've spent{" "}
-              <span className="text-[var(--fg-light)] font-semibold">
-                {stats.totalTimeSpent < 60 
-                  ? `${stats.totalTimeSpent} seconds`
-                  : `${Math.round(stats.totalTimeSpent / 60)} minutes`
-                }
-              </span>{" "}
-              practicing your typing skills. Keep up the great work!
-            </p>
+        <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-[var(--fg-muted)] text-sm">Average WPM</p>
+              <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
+                {stats?.averageWpm || 0}
+              </p>
+            </div>
+            <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--matrix-green)] flex-shrink-0" />
           </div>
-        )}
+        </div>
+
+        <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-[var(--fg-muted)] text-sm">Best WPM</p>
+              <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
+                {stats?.bestWpm || 0}
+              </p>
+            </div>
+            <Zap className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--matrix-green)] flex-shrink-0" />
+          </div>
+        </div>
+
+        <div className="bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <p className="text-[var(--fg-muted)] text-sm">Accuracy</p>
+              <p className="text-xl sm:text-2xl font-bold text-[var(--fg-light)]">
+                {stats?.averageAccuracy || 0}%
+              </p>
+            </div>
+            <Target className="h-6 w-6 sm:h-8 sm:w-8 text-[var(--purple-button)] flex-shrink-0" />
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity and Achievements */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        {/* Recent Tests */}
+        <div className="bg-[var(--bg-card)] rounded-lg p-6 border border-[var(--border)] min-h-[200px]">
+          <h3 className="text-lg font-semibold text-[var(--fg-light)] mb-4 flex items-center">
+            <Clock className="h-5 w-5 mr-2 text-[var(--purple-button)]" />
+            Recent Tests
+          </h3>
+          {stats?.recentTests && stats.recentTests.length > 0 ? (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto">
+              {stats.recentTests.slice(0, 5).map((test) => (
+                <div
+                  key={test.id}
+                  className="flex justify-between items-center py-2 border-b border-[var(--border)] last:border-b-0"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[var(--fg-light)] font-medium">
+                      {test.wpm} WPM
+                    </p>
+                    <p className="text-[var(--fg-muted)] text-sm">
+                      {test.accuracy}% accuracy
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0 ml-4">
+                    <p className="text-[var(--fg-muted)] text-sm">
+                      {new Date(test.createdAt).toLocaleDateString()}
+                    </p>
+                    <p className="text-[var(--fg-muted)] text-xs">
+                      {test.time}s
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[var(--fg-muted)]">No recent tests found.</p>
+          )}
+        </div>
+
+        {/* Achievements */}
+        <div className="bg-[var(--bg-card)] rounded-lg p-6 border border-[var(--border)] min-h-[200px]">
+          <h3 className="text-lg font-semibold text-[var(--fg-light)] mb-4 flex items-center">
+            <Trophy className="h-5 w-5 mr-2 text-[var(--matrix-green)]" />
+            Recent Achievements
+          </h3>
+          {stats?.achievements && stats.achievements.length > 0 ? (
+            <div className="space-y-3 max-h-[300px] overflow-y-auto">
+              {stats.achievements.slice(0, 5).map((achievement) => (
+                <div
+                  key={achievement.id}
+                  className="flex items-center py-2 border-b border-[var(--border)] last:border-b-0"
+                >
+                  <div className="w-8 h-8 bg-[var(--matrix-green)] rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                    <Trophy className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[var(--fg-light)] font-medium truncate">
+                      {achievement.title}
+                    </p>
+                    <p className="text-[var(--fg-muted)] text-sm truncate">
+                      {achievement.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[var(--fg-muted)]">
+              No achievements yet. Keep practicing!
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Time Spent */}
+      {stats?.totalTimeSpent && stats.totalTimeSpent > 0 && (
+        <div className="mt-6 bg-[var(--bg-card)] rounded-lg p-4 sm:p-6 border border-[var(--border)]">
+          <h3 className="text-lg font-semibold text-[var(--fg-light)] mb-4 flex items-center">
+            <Clock className="h-5 w-5 mr-2 text-[var(--purple-button)] flex-shrink-0" />
+            Time Invested
+          </h3>
+          <p className="text-[var(--fg-muted)] text-sm sm:text-base">
+            You've spent{" "}
+            <span className="text-[var(--fg-light)] font-semibold">
+              {stats.totalTimeSpent < 60
+                ? `${stats.totalTimeSpent} seconds`
+                : `${Math.round(stats.totalTimeSpent / 60)} minutes`}
+            </span>{" "}
+            practicing your typing skills. Keep up the great work!
+          </p>
+        </div>
+      )}
     </div>
   );
 }

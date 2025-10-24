@@ -14,8 +14,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify authentication - check both cookies and Authorization header
-    const authToken = request.cookies.get("auth_token")?.value || 
-                     request.headers.get("authorization")?.replace("Bearer ", "");
+    const authToken =
+      request.cookies.get("auth_token")?.value ||
+      request.headers.get("authorization")?.replace("Bearer ", "");
     if (!authToken) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -56,8 +57,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify authentication - check both cookies and Authorization header
-    const authToken = request.cookies.get("auth_token")?.value || 
-                     request.headers.get("authorization")?.replace("Bearer ", "");
+    const authToken =
+      request.cookies.get("auth_token")?.value ||
+      request.headers.get("authorization")?.replace("Bearer ", "");
     if (!authToken) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -99,8 +101,9 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify authentication - check both cookies and Authorization header
-    const authToken = request.cookies.get("auth_token")?.value || 
-                     request.headers.get("authorization")?.replace("Bearer ", "");
+    const authToken =
+      request.cookies.get("auth_token")?.value ||
+      request.headers.get("authorization")?.replace("Bearer ", "");
     if (!authToken) {
       return NextResponse.json(
         { error: "Authentication required" },

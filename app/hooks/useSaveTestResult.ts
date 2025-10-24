@@ -23,7 +23,7 @@ export const useSaveTestResult = () => {
       try {
         // Get auth token from localStorage
         const authToken = localStorage.getItem("auth_token");
-        
+
         const response = await fetch(`/api/user/${user.id}/tests`, {
           method: "POST",
           headers: {

@@ -6,7 +6,6 @@ import { useTypingTest } from "../hooks/useTypingTest";
 import Results from "./ui/Results";
 import Toolbar from "./ui/Toolbar";
 import TypingArea from "./ui/TypingArea";
-import { AlertCircle, User } from "lucide-react";
 
 function TypingTest() {
   const [duration, setDuration] = useState(60);
@@ -78,7 +77,7 @@ function TypingTest() {
               onReset={resetTest}
             />
           </div>
-          
+
           <div className="flex items-center justify-center p-4">
             <TypingArea
               words={words}
