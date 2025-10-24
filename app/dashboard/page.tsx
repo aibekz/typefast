@@ -63,7 +63,8 @@ export default function DashboardPage() {
       }
 
       try {
-        const response = await fetch(`/api/user/${user.id}/stats`);
+        // Add cache-busting to ensure fresh data
+        const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`);
 
         if (response.ok) {
           const data = await response.json();
@@ -81,6 +82,29 @@ export default function DashboardPage() {
 
     fetchStats();
   }, [user]);
+
+  // Refresh stats when component becomes visible (user navigates back to dashboard)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user?.id) {
+        const fetchStats = async () => {
+          try {
+            const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`);
+            if (response.ok) {
+              const data = await response.json();
+              setStats(data);
+            }
+          } catch (error) {
+            console.error("Dashboard: Error refreshing stats:", error);
+          }
+        };
+        fetchStats();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [user?.id]);
 
   if (loading) {
     return (

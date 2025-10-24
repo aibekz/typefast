@@ -23,13 +23,15 @@ export const useTypingTestOptimized = ({
     onTimeUp: async () => {
       setIsComplete(true);
 
+      // Calculate actual elapsed time
+      const actualElapsedTime = duration; // For time-based tests, use the duration
+      
       // Save test result to database
-      // Use the exact duration instead of elapsed time for accuracy
-      const finalStats = stats.getFinalStats(duration);
+      const finalStats = stats.getFinalStats(actualElapsedTime);
       const testResult = {
         wpm: finalStats.wpm,
         accuracy: finalStats.accuracy,
-        time: duration, // Use the original duration setting
+        time: actualElapsedTime,
         characters: stats.cumulativeStats.totalChars,
         mistakes:
           stats.cumulativeStats.totalChars - stats.cumulativeStats.correctChars,
@@ -38,7 +40,12 @@ export const useTypingTestOptimized = ({
       };
 
       try {
-        await saveTestResult(testResult);
+        const result = await saveTestResult(testResult);
+        if (result.success) {
+          console.log("Test result saved successfully");
+        } else {
+          console.error("Failed to save test result:", result.error);
+        }
       } catch (error) {
         console.error("Failed to save test result:", error);
       }
