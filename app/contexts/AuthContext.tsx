@@ -27,7 +27,7 @@ import {
 const setCookie = (name: string, value: string, maxAge: number) => {
   if (typeof document !== "undefined" && "cookieStore" in document) {
     // Use Cookie Store API if available
-    document.cookieStore.set(name, value, {
+    (document as any).cookieStore.set(name, value, {
       maxAge,
       path: "/",
       secure: true,
@@ -43,7 +43,7 @@ const setCookie = (name: string, value: string, maxAge: number) => {
 const deleteCookie = (name: string) => {
   if (typeof document !== "undefined" && "cookieStore" in document) {
     // Use Cookie Store API if available
-    document.cookieStore.delete(name, { path: "/" });
+    (document as any).cookieStore.delete(name, { path: "/" });
   } else {
     // Fallback to direct assignment
     // biome-ignore lint/suspicious/noDocumentCookie: Fallback for browsers without Cookie Store API
