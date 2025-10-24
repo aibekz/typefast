@@ -36,6 +36,7 @@ export const useTypingTest = (duration: number = 60) => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const endTestRef = useRef<(() => void) | undefined>(undefined);
   const { saveTestResult } = useSaveTestResult();
 
   // ===== WORD GENERATION =====
@@ -65,6 +66,7 @@ export const useTypingTest = (duration: number = 60) => {
   const endTest = useCallback(async () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
+      timerRef.current = null;
     }
     setIsActive(false);
     setIsComplete(true);
@@ -96,6 +98,9 @@ export const useTypingTest = (duration: number = 60) => {
       }
     }
   }, [cumulativeStats, stats, timeElapsed, saveTestResult]);
+
+  // Store endTest in ref to avoid timer restarts
+  endTestRef.current = endTest;
 
   const resetTest = useCallback(() => {
     setIsActive(false);
@@ -323,17 +328,18 @@ export const useTypingTest = (duration: number = 60) => {
         setTimeRemaining(remaining);
 
         if (remaining <= 0) {
-          endTest();
+          endTestRef.current?.();
         }
-      }, 1000); // Optimized from 100ms to 1000ms
+      }, 1000);
     }
 
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
+        timerRef.current = null;
       }
     };
-  }, [isActive, startTime, duration, endTest]);
+  }, [isActive, startTime, duration]);
 
   // Calculate final stats using cumulative statistics
   const totalCorrectChars = cumulativeStats.correctChars + stats.correctChars;

@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useTypingTestOptimized } from "../hooks/useTypingTestOptimized";
 import OptimizedTypingArea from "./ui/OptimizedTypingArea";
 import Results from "./ui/Results";
 import Toolbar from "./ui/Toolbar";
+import { AlertCircle } from "lucide-react";
 
 function OptimizedTypingTest() {
   const [duration, setDuration] = useState(60);
+  const { isAuthenticated } = useAuth();
 
   const {
     words,
@@ -54,6 +57,7 @@ function OptimizedTypingTest() {
             timeElapsed={timeElapsed}
             formatTime={formatTime}
             onRestart={resetTest}
+            isAuthenticated={isAuthenticated}
           />
         </div>
       ) : isLoading ? (
@@ -74,6 +78,7 @@ function OptimizedTypingTest() {
               onReset={resetTest}
             />
           </div>
+          
           <div className="flex items-center justify-center p-4">
             <OptimizedTypingArea
               words={words}

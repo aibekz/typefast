@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useTypingTest } from "../hooks/useTypingTest";
 import Results from "./ui/Results";
 import Toolbar from "./ui/Toolbar";
 import TypingArea from "./ui/TypingArea";
+import { AlertCircle, User } from "lucide-react";
 
 function TypingTest() {
   const [duration, setDuration] = useState(60);
+  const { isAuthenticated } = useAuth();
 
   const {
     words,
@@ -54,6 +57,7 @@ function TypingTest() {
             timeElapsed={timeElapsed}
             formatTime={formatTime}
             onRestart={resetTest}
+            isAuthenticated={isAuthenticated}
           />
         </div>
       ) : isLoading ? (
@@ -74,6 +78,7 @@ function TypingTest() {
               onReset={resetTest}
             />
           </div>
+          
           <div className="flex items-center justify-center p-4">
             <TypingArea
               words={words}

@@ -1,13 +1,15 @@
 import type { TypingStats } from "../../types";
+import { User, BarChart3, Trophy, Save } from "lucide-react";
 
 interface ResultsProps {
   stats: TypingStats;
   timeElapsed: number;
   formatTime: (seconds: number) => string;
   onRestart: () => void;
+  isAuthenticated?: boolean;
 }
 
-function Results({ stats, timeElapsed, formatTime, onRestart }: ResultsProps) {
+function Results({ stats, timeElapsed, formatTime, onRestart, isAuthenticated = true }: ResultsProps) {
   const overallAccuracy =
     Math.round((stats.correctChars / stats.totalChars) * 100) || 0;
 
@@ -105,6 +107,48 @@ function Results({ stats, timeElapsed, formatTime, onRestart }: ResultsProps) {
               </div>
             </div>
           </div>
+
+          {/* Sign-in Prompt for Guest Users */}
+          {!isAuthenticated && (
+            <div className="bg-gradient-to-r from-[var(--purple-button)]/10 to-[var(--matrix-green)]/10 border border-[var(--border)] rounded-lg p-6 mb-8">
+              <div className="text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="bg-[var(--purple-button)]/20 rounded-full p-3">
+                    <User className="h-8 w-8 text-[var(--purple-button)]" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-[var(--fg-light)] mb-2">
+                  Great job! 🎉
+                </h3>
+                <p className="text-[var(--fg-muted)] mb-4">
+                  Your results won't be saved in guest mode. Sign in to track your progress and unlock these features:
+                </p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Save className="h-4 w-4 text-[var(--matrix-green)]" />
+                    <span className="text-[var(--fg-muted)]">Save test results</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <BarChart3 className="h-4 w-4 text-[var(--purple-button)]" />
+                    <span className="text-[var(--fg-muted)]">Track progress</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm">
+                    <Trophy className="h-4 w-4 text-[var(--fg-accent)]" />
+                    <span className="text-[var(--fg-muted)]">Earn achievements</span>
+                  </div>
+                </div>
+
+                <a
+                  href="/login"
+                  className="inline-flex items-center px-6 py-3 bg-[var(--purple-button)] text-white font-bold text-lg hover:opacity-80 transition-opacity rounded-lg"
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  Sign in to save progress
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">

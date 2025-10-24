@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../../contexts/AuthContext";
 import UserMenu from "../auth/UserMenu";
+import { AlertCircle } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -61,6 +62,23 @@ export default function Layout({ children }: LayoutProps) {
           )}
         </div>
       </header>
+
+      {/* Guest Mode Banner */}
+      {!isAuthenticated && pathname === "/" && (
+        <div className="flex-shrink-0 mx-4 mb-4">
+          <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-lg p-3 flex items-center space-x-3">
+            <AlertCircle className="h-5 w-5 text-[var(--fg-muted)] flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm text-[var(--fg-muted)]">
+                <strong>Guest Mode:</strong> Your results won't be saved. 
+                <a href="/login" className="text-[var(--purple-button)] hover:underline ml-1">
+                  Sign in to track your progress
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
