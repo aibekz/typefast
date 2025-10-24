@@ -26,6 +26,38 @@ export async function POST(
       );
     }
 
+    // Verify authentication
+    const authToken = request.cookies.get("auth_token")?.value;
+    if (!authToken) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    // Verify the user owns this data
+    try {
+      const { validateToken } = await import("../../../lib/auth");
+      const userInfo = await validateToken(authToken);
+
+      // Get the database user to verify ownership
+      const dbUser = await db.user.findUnique({
+        where: { authId: userInfo.id || userInfo.email },
+      });
+
+      if (!dbUser || dbUser.id !== userId) {
+        return NextResponse.json(
+          { error: "Unauthorized access" },
+          { status: 403 },
+        );
+      }
+    } catch (authError) {
+      return NextResponse.json(
+        { error: "Invalid authentication" },
+        { status: 401 },
+      );
+    }
+
     if (!wpm || !accuracy || !time || !characters || mistakes === undefined) {
       return NextResponse.json(
         { error: "Missing required test data" },

@@ -56,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userInfo = await validateToken(token);
 
       // Store/update Retype user profile (linked to NVIXIO user)
+      let databaseUserId = null;
       try {
         // Extract NVIXIO user ID from JWT token (assuming it's in the token)
         const nvixioUserId = userInfo.id || userInfo.email; // Use email as fallback for NVIXIO user ID
@@ -68,14 +69,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             name: userInfo.name,
             avatar: userInfo.avatar,
           });
+          databaseUserId = existingRetypeUser.id;
         } else {
           // Create new Retype user profile
-          await createRetypeUser({
+          const newUser = await createRetypeUser({
             authId: nvixioUserId,
             email: userInfo.email,
             name: userInfo.name,
             avatar: userInfo.avatar,
           });
+          databaseUserId = newUser.id;
         }
       } catch (dbError) {
         console.error("Database error:", dbError);
@@ -83,7 +86,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setAuthState({
-        user: userInfo,
+        user: {
+          ...userInfo,
+          id: databaseUserId, // Use database user ID for API calls
+        },
         isLoading: false,
         isAuthenticated: true,
       });
@@ -148,8 +154,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const userInfo = await validateToken(token);
           storeAuthData(token, userInfo);
 
+          // Get database user ID
+          let databaseUserId = null;
+          try {
+            const nvixioUserId = userInfo.id || userInfo.email;
+            const existingRetypeUser =
+              await getRetypeUserByNvixioId(nvixioUserId);
+            if (existingRetypeUser) {
+              databaseUserId = existingRetypeUser.id;
+            } else {
+              const newUser = await createRetypeUser({
+                authId: nvixioUserId,
+                email: userInfo.email,
+                name: userInfo.name,
+                avatar: userInfo.avatar,
+              });
+              databaseUserId = newUser.id;
+            }
+          } catch (dbError) {
+            console.error("Database error in callback:", dbError);
+          }
+
           setAuthState({
-            user: userInfo,
+            user: {
+              ...userInfo,
+              id: databaseUserId,
+            },
             isLoading: false,
             isAuthenticated: true,
           });
