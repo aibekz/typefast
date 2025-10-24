@@ -131,13 +131,32 @@ function TypingArea({
     }
   }, [inputRef]);
 
-  // Global keydown listener to focus input
+  // Global keydown listener to focus input on any key press
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Only focus if not already focused and not a special key
-      if (!isFocused && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        if (inputRef.current) {
-          inputRef.current.focus();
+      // Only focus if not already focused
+      if (!isFocused && inputRef.current) {
+        // Focus the input first
+        inputRef.current.focus();
+        
+        // If it's a printable character, simulate the key press in the input
+        if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          // Prevent the default behavior
+          e.preventDefault();
+          
+          // Create a synthetic input event with the pressed key
+          const syntheticEvent = new Event('input', { bubbles: true });
+          Object.defineProperty(syntheticEvent, 'target', {
+            value: inputRef.current,
+            enumerable: true
+          });
+          
+          // Set the input value to include the pressed key
+          const currentValue = inputRef.current.value;
+          inputRef.current.value = currentValue + e.key;
+          
+          // Dispatch the synthetic input event
+          inputRef.current.dispatchEvent(syntheticEvent);
         }
       }
     };
@@ -145,6 +164,7 @@ function TypingArea({
     document.addEventListener('keydown', handleGlobalKeyDown);
     return () => document.removeEventListener('keydown', handleGlobalKeyDown);
   }, [isFocused, inputRef]);
+
 
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4 w-full max-w-6xl h-full">
@@ -160,7 +180,10 @@ function TypingArea({
       <button
         type="button"
         className="w-full max-w-4xl relative cursor-text bg-transparent border-none p-0"
-        onClick={onContainerClick}
+        onClick={(e) => {
+          // Only focus when clicking the text area
+          onContainerClick();
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             onContainerClick();
