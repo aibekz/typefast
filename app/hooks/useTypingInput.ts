@@ -189,27 +189,6 @@ export const useTypingInput = ({
     }
   }, []);
 
-  useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        !target.closest("[data-typing-area]") &&
-        !target.closest("[data-typing-controls]") &&
-        !target.closest("input") &&
-        !target.closest("button") &&
-        !target.closest("[role='dialog']") &&
-        !isComplete &&
-        timeRemaining > 0
-      ) {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }
-    };
-
-    document.addEventListener("click", handleGlobalClick);
-    return () => document.removeEventListener("click", handleGlobalClick);
-  }, [isComplete, timeRemaining]);
 
   return {
     input,

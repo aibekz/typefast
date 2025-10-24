@@ -166,6 +166,7 @@ function TypingArea({
   }, [isFocused, inputRef]);
 
 
+
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4 w-full max-w-6xl h-full">
       {/* Timer Counter - Always visible */}
@@ -179,7 +180,7 @@ function TypingArea({
 
       <button
         type="button"
-        className="w-full max-w-4xl relative cursor-text bg-transparent border-none p-0"
+        className="w-full max-w-4xl relative cursor-text bg-transparent border-2 border-dashed border-[var(--border)] rounded-lg p-4 transition-colors duration-200 hover:border-[var(--fg-muted)]"
         onClick={(e) => {
           // Only focus when clicking the text area
           onContainerClick();
