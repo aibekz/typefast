@@ -6,10 +6,14 @@ export async function createRetypeUser(userData: {
   name?: string;
   avatar?: string;
 }) {
+  // Get auth token from localStorage
+  const authToken = localStorage.getItem("auth_token");
+  
   const response = await fetch("/api/user", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      ...(authToken && { Authorization: `Bearer ${authToken}` }),
     },
     body: JSON.stringify(userData),
   });
@@ -23,8 +27,16 @@ export async function createRetypeUser(userData: {
 }
 
 export async function getRetypeUserByNvixioId(nvixioUserId: string) {
+  // Get auth token from localStorage
+  const authToken = localStorage.getItem("auth_token");
+  
   const response = await fetch(
     `/api/user?authId=${encodeURIComponent(nvixioUserId)}`,
+    {
+      headers: {
+        ...(authToken && { Authorization: `Bearer ${authToken}` }),
+      },
+    }
   );
 
   if (response.status === 404) {
@@ -47,10 +59,14 @@ export async function updateRetypeUser(
     avatar?: string;
   },
 ) {
+  // Get auth token from localStorage
+  const authToken = localStorage.getItem("auth_token");
+  
   const response = await fetch("/api/user", {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...(authToken && { Authorization: `Bearer ${authToken}` }),
     },
     body: JSON.stringify({ authId, ...userData }),
   });

@@ -64,8 +64,15 @@ export default function DashboardPage() {
 
     setLoading(true);
     try {
+      // Get auth token from localStorage
+      const authToken = localStorage.getItem("auth_token");
+      
       // Add cache-busting to ensure fresh data
-      const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`);
+      const response = await fetch(`/api/user/${user.id}/stats?t=${Date.now()}`, {
+        headers: {
+          ...(authToken && { Authorization: `Bearer ${authToken}` }),
+        },
+      });
 
       if (response.ok) {
         const data = await response.json();

@@ -21,10 +21,14 @@ export const useSaveTestResult = () => {
       }
 
       try {
+        // Get auth token from localStorage
+        const authToken = localStorage.getItem("auth_token");
+        
         const response = await fetch(`/api/user/${user.id}/tests`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(authToken && { Authorization: `Bearer ${authToken}` }),
           },
           body: JSON.stringify(result),
         });

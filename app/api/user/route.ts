@@ -13,6 +13,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Verify authentication - check both cookies and Authorization header
+    const authToken = request.cookies.get("auth_token")?.value || 
+                     request.headers.get("authorization")?.replace("Bearer ", "");
+    if (!authToken) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
     const user = await db.user.findUnique({
       where: { authId },
     });
@@ -42,6 +52,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Auth ID and email are required" },
         { status: 400 },
+      );
+    }
+
+    // Verify authentication - check both cookies and Authorization header
+    const authToken = request.cookies.get("auth_token")?.value || 
+                     request.headers.get("authorization")?.replace("Bearer ", "");
+    if (!authToken) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
       );
     }
 
@@ -75,6 +95,16 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json(
         { error: "Auth ID is required" },
         { status: 400 },
+      );
+    }
+
+    // Verify authentication - check both cookies and Authorization header
+    const authToken = request.cookies.get("auth_token")?.value || 
+                     request.headers.get("authorization")?.replace("Bearer ", "");
+    if (!authToken) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
       );
     }
 

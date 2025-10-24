@@ -26,8 +26,9 @@ export async function POST(
       );
     }
 
-    // Verify authentication
-    const authToken = request.cookies.get("auth_token")?.value;
+    // Verify authentication - check both cookies and Authorization header
+    const authToken = request.cookies.get("auth_token")?.value || 
+                     request.headers.get("authorization")?.replace("Bearer ", "");
     if (!authToken) {
       return NextResponse.json(
         { error: "Authentication required" },
