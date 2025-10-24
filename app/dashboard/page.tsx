@@ -44,6 +44,7 @@ interface UserStats {
   bestWpm: number;
   averageAccuracy: number;
   totalTimeSpent: number;
+  totalTimeSpentMinutes?: number;
   recentTests: Test[];
   recentProgress: Progress[];
   achievements: Achievement[];
@@ -256,7 +257,10 @@ export default function DashboardPage() {
             <p className="text-[var(--fg-muted)]">
               You've spent{" "}
               <span className="text-[var(--fg-light)] font-semibold">
-                {stats.totalTimeSpent} minutes
+                {stats.totalTimeSpent < 60 
+                  ? `${stats.totalTimeSpent} seconds`
+                  : `${Math.round(stats.totalTimeSpent / 60)} minutes`
+                }
               </span>{" "}
               practicing your typing skills. Keep up the great work!
             </p>

@@ -51,8 +51,17 @@ export async function GET(
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [tests, progress, achievements] = await Promise.all([
-      // Recent tests
+    const [allTests, recentTests, progress, achievements] = await Promise.all([
+      // All tests for statistics
+      db.test.findMany({
+        where: {
+          userId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      }),
+      // Recent tests (last 30 days)
       db.test.findMany({
         where: {
           userId,
@@ -88,27 +97,28 @@ export async function GET(
       }),
     ]);
 
-    // Calculate statistics
-    const totalTests = tests.length;
+    // Calculate statistics using all tests
+    const totalTests = allTests.length;
     const averageWpm =
-      tests.length > 0
+      allTests.length > 0
         ? Math.round(
-            tests.reduce((sum, test) => sum + test.wpm, 0) / tests.length,
+            allTests.reduce((sum, test) => sum + test.wpm, 0) / allTests.length,
           )
         : 0;
     const bestWpm =
-      tests.length > 0 ? Math.max(...tests.map((test) => test.wpm)) : 0;
+      allTests.length > 0 ? Math.max(...allTests.map((test) => test.wpm)) : 0;
     const averageAccuracy =
-      tests.length > 0
+      allTests.length > 0
         ? Math.round(
-            (tests.reduce((sum, test) => sum + test.accuracy, 0) /
-              tests.length) *
+            (allTests.reduce((sum, test) => sum + test.accuracy, 0) /
+              allTests.length) *
               100,
           ) / 100
         : 0;
 
-    // Calculate total time spent (in minutes)
-    const totalTimeSpent = tests.reduce((sum, test) => sum + test.time, 0) / 60;
+    // Calculate total time spent (in seconds, then convert to minutes)
+    const totalTimeSpentSeconds = allTests.reduce((sum, test) => sum + test.time, 0);
+    const totalTimeSpent = totalTimeSpentSeconds / 60;
 
     // Get recent progress trend
     const recentProgress = progress.slice(0, 7).reverse();
@@ -118,11 +128,12 @@ export async function GET(
       averageWpm,
       bestWpm,
       averageAccuracy,
-      totalTimeSpent: Math.round(totalTimeSpent),
-      recentTests: tests,
+      totalTimeSpent: totalTimeSpentSeconds, // Return seconds for more precision
+      totalTimeSpentMinutes: Math.round(totalTimeSpent), // Rounded minutes for display
+      recentTests: recentTests,
       recentProgress,
       achievements: achievements.slice(0, 5), // Latest 5 achievements
-      lastTestDate: tests.length > 0 ? tests[0].createdAt : null,
+      lastTestDate: allTests.length > 0 ? allTests[0].createdAt : null,
     };
 
     return NextResponse.json(stats);
