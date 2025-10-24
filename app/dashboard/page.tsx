@@ -57,24 +57,16 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchStats = async () => {
-      console.log("Dashboard: Fetching stats for user:", user);
       if (!user?.id) {
-        console.log("Dashboard: No user ID available");
         setLoading(false);
         return;
       }
 
       try {
-        console.log(
-          "Dashboard: Fetching from API:",
-          `/api/user/${user.id}/stats`,
-        );
         const response = await fetch(`/api/user/${user.id}/stats`);
-        console.log("Dashboard: API response status:", response.status);
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Dashboard: API response data:", data);
           setStats(data);
         } else {
           const errorData = await response.json();

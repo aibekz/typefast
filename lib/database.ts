@@ -39,16 +39,6 @@ export async function getRetypeUserByNvixioId(nvixioUserId: string) {
   return response.json();
 }
 
-export async function getRetypeUserByEmail(_email: string) {
-  // This would need a separate API endpoint if needed
-  throw new Error("getRetypeUserByEmail not implemented");
-}
-
-export async function getRetypeUserById(_id: string) {
-  // This would need a separate API endpoint if needed
-  throw new Error("getRetypeUserById not implemented");
-}
-
 export async function updateRetypeUser(
   authId: string,
   userData: {

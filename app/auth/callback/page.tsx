@@ -36,7 +36,6 @@ export default function AuthCallbackPage() {
         if (token) {
           // Store the token in localStorage for client-side auth
           localStorage.setItem("auth_token", token);
-          console.log("Token stored in localStorage:", token);
 
           // Dispatch custom event to notify AuthContext of successful login
           window.dispatchEvent(
