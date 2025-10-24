@@ -24,11 +24,12 @@ export const useTypingTestOptimized = ({
       setIsComplete(true);
 
       // Save test result to database
-      const finalStats = stats.getFinalStats(timer.timeElapsed);
+      // Use the exact duration instead of elapsed time for accuracy
+      const finalStats = stats.getFinalStats(duration);
       const testResult = {
         wpm: finalStats.wpm,
         accuracy: finalStats.accuracy,
-        time: timer.timeElapsed,
+        time: duration, // Use the original duration setting
         characters: stats.cumulativeStats.totalChars,
         mistakes:
           stats.cumulativeStats.totalChars - stats.cumulativeStats.correctChars,

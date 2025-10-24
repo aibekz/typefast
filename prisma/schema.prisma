@@ -37,7 +37,7 @@ model Test {
   userId      String
   wpm         Int      // Words per minute
   accuracy    Float    // Accuracy percentage
-  time        Int      // Test duration in seconds
+  time        Float    // Test duration in seconds
   characters  Int      // Total characters typed
   mistakes    Int      // Number of mistakes
   testType    String   // "time", "words", "quote"

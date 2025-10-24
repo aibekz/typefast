@@ -57,20 +57,20 @@ export const useTimer = ({ duration, onTimeUp }: UseTimerProps) => {
     }
 
     timerRef.current = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - (state.startTime || 0)) / 1000);
+      const elapsed = (Date.now() - (state.startTime || 0)) / 1000;
       const remaining = Math.max(0, duration - elapsed);
 
       setState((prev) => ({
         ...prev,
-        timeElapsed: elapsed,
-        timeRemaining: remaining,
+        timeElapsed: Math.floor(elapsed),
+        timeRemaining: Math.ceil(remaining),
       }));
 
       if (remaining <= 0) {
         stopTimer();
         onTimeUp?.();
       }
-    }, 1000);
+    }, 100);
 
     return () => {
       if (timerRef.current) {

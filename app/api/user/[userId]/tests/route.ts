@@ -71,7 +71,7 @@ export async function POST(
         userId,
         wpm: Math.round(wpm),
         accuracy: Math.round(accuracy * 100) / 100,
-        time: Math.round(time),
+        time: time, // Store exact time as float
         characters: Math.round(characters),
         mistakes: Math.round(mistakes),
         testType,
