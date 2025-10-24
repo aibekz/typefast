@@ -74,7 +74,6 @@ function TypingTest() {
               isActive={isActive}
               onDurationChange={adjustDuration}
               onSetCustomDuration={setCustomDuration}
-              onReset={resetTest}
             />
           </div>
 
@@ -92,6 +91,7 @@ function TypingTest() {
               isTestActive={isActive}
               timeRemaining={timeRemaining}
               formatTime={formatTime}
+              onReset={resetTest}
             />
           </div>
         </>

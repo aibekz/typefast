@@ -1,3 +1,5 @@
+import { RotateCcw, MousePointer } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { Word } from "../../types";
 
 interface TypingAreaProps {
@@ -13,6 +15,7 @@ interface TypingAreaProps {
   isTestActive: boolean;
   timeRemaining: number;
   formatTime: (seconds: number) => string;
+  onReset: () => void;
 }
 
 // Simplified word rendering component
@@ -107,7 +110,42 @@ function TypingArea({
   isTestActive,
   timeRemaining,
   formatTime,
+  onReset,
 }: TypingAreaProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Track focus state
+  useEffect(() => {
+    const handleFocus = () => setIsFocused(true);
+    const handleBlur = () => setIsFocused(false);
+
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener('focus', handleFocus);
+      inputElement.addEventListener('blur', handleBlur);
+      
+      return () => {
+        inputElement.removeEventListener('focus', handleFocus);
+        inputElement.removeEventListener('blur', handleBlur);
+      };
+    }
+  }, [inputRef]);
+
+  // Global keydown listener to focus input
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Only focus if not already focused and not a special key
+      if (!isFocused && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [isFocused, inputRef]);
+
   return (
     <main className="flex flex-col items-center justify-center px-3 sm:px-4 w-full max-w-6xl h-full">
       {/* Timer Counter - Always visible */}
@@ -130,7 +168,9 @@ function TypingArea({
         }}
         data-typing-area
       >
-        <div className="text-lg sm:text-xl md:text-2xl leading-relaxed text-center word-transition">
+        <div className={`text-lg sm:text-xl md:text-2xl leading-relaxed text-center word-transition transition-all duration-300 ${
+          !isFocused ? 'blur-sm opacity-60' : 'blur-none opacity-100'
+        }`}>
           {words.map((word, index) => (
             <WordComponent
               key={`word-${index}-${word.text}`}
@@ -142,6 +182,16 @@ function TypingArea({
             />
           ))}
         </div>
+
+        {/* Focus message overlay */}
+        {!isFocused && timeRemaining > 0 && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="flex items-center gap-2 text-sm text-[var(--fg-muted)] opacity-80">
+              <MousePointer className="h-4 w-4" />
+              <span>Click here or press any key to focus</span>
+            </div>
+          </div>
+        )}
 
         {/* Hidden input for capturing keystrokes */}
         <input
@@ -158,6 +208,19 @@ function TypingArea({
           spellCheck="false"
         />
       </button>
+
+      {/* Reset Button */}
+      <div className="mt-8 flex justify-center">
+        <button
+          type="button"
+          onClick={onReset}
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:text-[var(--fg-light)] hover:bg-[var(--bg-dark)] rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--purple-button)] focus:ring-opacity-50"
+          title="Reset test"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reset
+        </button>
+      </div>
     </main>
   );
 }

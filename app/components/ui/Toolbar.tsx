@@ -5,7 +5,6 @@ interface ToolbarProps {
   isActive: boolean;
   onDurationChange: (delta: number) => void;
   onSetCustomDuration: (duration: number) => void;
-  onReset: () => void;
 }
 
 function Toolbar({
@@ -13,7 +12,6 @@ function Toolbar({
   isActive,
   onDurationChange,
   onSetCustomDuration,
-  onReset,
 }: ToolbarProps) {
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [customTime, setCustomTime] = useState("");
@@ -90,15 +88,6 @@ function Toolbar({
             custom
           </button>
         </div>
-
-        {/* Reset Button */}
-        <button
-          type="button"
-          onClick={onReset}
-          className="px-3 py-1 text-sm bg-[var(--bg-card)] border border-[var(--border)] text-[var(--fg-muted)] hover:bg-[var(--border-light)] hover:text-[var(--fg-light)] transition-all duration-200 rounded font-mono ml-4"
-        >
-          reset
-        </button>
       </div>
 
       {/* Custom Time Modal */}

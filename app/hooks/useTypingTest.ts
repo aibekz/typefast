@@ -1,92 +1,43 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { loadWordList } from "../lib/wordLoader";
+import { useCallback, useEffect, useState } from "react";
 import type { TypingStats, Word } from "../types";
-import { calculateStats } from "../utils/calculateStats";
 import { useSaveTestResult } from "./useSaveTestResult";
-
-// Inline utility function
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
+import { useWordGeneration } from "./useWordGeneration";
+import { useTypingTimer } from "./useTypingTimer";
+import { useTypingInput } from "./useTypingInput";
+import { useTypingStats } from "./useTypingStats";
 
 export const useTypingTest = (duration: number = 60) => {
-  // Simplified state management
-  const [words, setWords] = useState<Word[]>([]);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [input, setInput] = useState("");
-  const [isActive, setIsActive] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [timeElapsed, setTimeElapsed] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(duration);
-  const [stats, setStats] = useState({
-    correctChars: 0,
-    totalChars: 0,
-    incorrectChars: new Set<string>(),
-  });
-
-  // Cumulative statistics across all words
-  const [cumulativeStats, setCumulativeStats] = useState({
-    correctChars: 0,
-    totalChars: 0,
-  });
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const endTestRef = useRef<(() => void) | undefined>(undefined);
+  
+  // Use smaller, focused hooks
+  const { words, isLoading, generateWords } = useWordGeneration();
+  const { 
+    isActive, 
+    timeElapsed, 
+    timeRemaining, 
+    isComplete, 
+    startTimer, 
+    stopTimer, 
+    resetTimer, 
+    formatTime 
+  } = useTypingTimer(duration);
+  const { addWordStats, calculateFinalStats, resetStats } = useTypingStats();
   const { saveTestResult } = useSaveTestResult();
-
-  // ===== WORD GENERATION =====
-  const generateWords = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const wordList = await loadWordList();
-      const newWords: Word[] = [];
-      for (let i = 0; i < 25; i++) {
-        const randomWord =
-          wordList[Math.floor(Math.random() * wordList.length)];
-        newWords.push({
-          text: randomWord,
-          status: "pending",
-        });
-      }
-      setWords(newWords);
-    } catch (error) {
-      console.error("Error generating words:", error);
-      setWords([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   // ===== TEST CONTROL =====
   const endTest = useCallback(async () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    setIsActive(false);
-    setIsComplete(true);
+    stopTimer();
 
     // Save test result to database
-    const totalCorrectChars = cumulativeStats.correctChars + stats.correctChars;
-    const totalTotalChars = cumulativeStats.totalChars + stats.totalChars;
-    const finalStats = calculateStats(
-      totalCorrectChars,
-      totalTotalChars,
-      timeElapsed,
-    );
+    const finalStats = calculateFinalStats(0, 0, timeElapsed);
 
     if (timeElapsed > 0) {
       const testResult = {
         wpm: finalStats.wpm,
         accuracy: finalStats.accuracy,
         time: timeElapsed,
-        characters: totalTotalChars,
-        mistakes: totalTotalChars - totalCorrectChars,
+        characters: finalStats.totalChars,
+        mistakes: finalStats.incorrectChars,
         testType: "time",
         difficulty: "medium",
       };
@@ -97,192 +48,61 @@ export const useTypingTest = (duration: number = 60) => {
         console.error("Failed to save test result:", error);
       }
     }
-  }, [cumulativeStats, stats, timeElapsed, saveTestResult]);
+  }, [stopTimer, calculateFinalStats, timeElapsed, saveTestResult]);
 
-  // Store endTest in ref to avoid timer restarts
-  endTestRef.current = endTest;
+  // ===== WORD COMPLETION HANDLERS =====
+  const handleWordComplete = useCallback((wordIndex: number, stats: { correctChars: number; totalChars: number }) => {
+    addWordStats(stats.correctChars, stats.totalChars);
+    
+    const nextWordIndex = wordIndex + 1;
+    
+    // Replace words if we've completed all 25
+    if (nextWordIndex === 25) {
+      generateWords();
+      setCurrentWordIndex(0);
+    } else {
+      setCurrentWordIndex(nextWordIndex);
+    }
+  }, [addWordStats, generateWords]);
+
+  const handleBackspace = useCallback((prevWordIndex: number, prevWord: Word) => {
+    setCurrentWordIndex(prevWordIndex);
+  }, []);
+
+  // ===== TYPING INPUT =====
+  const {
+    input,
+    stats: inputStats,
+    inputRef,
+    handleInputChange,
+    handleKeyDown,
+    handleKeyPress,
+    handleContainerClick,
+    resetInput,
+  } = useTypingInput({
+    words,
+    currentWordIndex,
+    isComplete,
+    timeRemaining,
+    onWordComplete: handleWordComplete,
+    onBackspace: handleBackspace,
+  });
 
   const resetTest = useCallback(() => {
-    setIsActive(false);
-    setStartTime(null);
-    setInput("");
+    resetTimer();
+    resetStats();
     setCurrentWordIndex(0);
-    setStats({
-      correctChars: 0,
-      totalChars: 0,
-      incorrectChars: new Set<string>(),
-    });
-    setCumulativeStats({
-      correctChars: 0,
-      totalChars: 0,
-    });
-    setTimeElapsed(0);
-    setTimeRemaining(duration);
-    setIsComplete(false);
-    setIsLoading(true);
+    resetInput();
     generateWords();
-  }, [duration, generateWords]);
-
-  // ===== FOCUS MANAGEMENT =====
-  const handleContainerClick = () => {
-    if (inputRef.current && !isComplete && timeRemaining > 0) {
-      inputRef.current.focus();
-    }
-  };
-
-  // Auto-focus input when test is ready
-  useEffect(() => {
-    if (!isLoading && !isComplete && timeRemaining > 0 && inputRef.current) {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, isComplete, timeRemaining]);
+  }, [resetTimer, resetStats, resetInput, generateWords]);
 
   // ===== INPUT HANDLING =====
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isComplete || timeRemaining <= 0) return;
-
-    const value = e.target.value;
-    const currentWord = words[currentWordIndex];
-
+  const handleInputChangeWithTimer = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Start test on first keystroke
-    if (!isActive && value.length > 0) {
-      setIsActive(true);
-      setStartTime(Date.now());
+    if (!isActive && e.target.value.length > 0) {
+      startTimer();
     }
-
-    // Allow editing of current word only
-    if (value.length > currentWord?.text.length) return;
-
-    setInput(value);
-
-    // Create a new set of incorrect characters
-    const newIncorrectChars = new Set(stats.incorrectChars);
-    // Clear incorrect chars for the current word we're typing
-    for (const key of newIncorrectChars) {
-      if (key.startsWith(`${currentWordIndex}-`)) {
-        newIncorrectChars.delete(key);
-      }
-    }
-
-    // Calculate correct characters and track incorrect ones for current word
-    let correctCount = 0;
-
-    for (let i = 0; i < value.length; i++) {
-      if (i < currentWord?.text.length) {
-        const isCorrect =
-          value[i].toLowerCase() === currentWord.text[i].toLowerCase();
-        if (isCorrect) {
-          correctCount++;
-        } else {
-          // Mark this character as incorrect
-          newIncorrectChars.add(`${currentWordIndex}-${i}`);
-        }
-      }
-    }
-
-    // Update stats
-    setStats((prev) => ({
-      ...prev,
-      correctChars: correctCount,
-      totalChars: value.length,
-      incorrectChars: newIncorrectChars,
-    }));
-  };
-
-  // ===== KEYBOARD HANDLING =====
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (isComplete || timeRemaining <= 0) {
-      e.preventDefault();
-      return;
-    }
-
-    if (e.key === "Backspace") {
-      handleBackspace();
-    }
-
-    if (e.key === " ") {
-      e.preventDefault();
-
-      // Only allow space to move to next word if current word is complete
-      if (input.length >= words[currentWordIndex]?.text.length) {
-        // Accumulate statistics for the completed word
-        setCumulativeStats((prev) => ({
-          correctChars: prev.correctChars + stats.correctChars,
-          totalChars: prev.totalChars + stats.totalChars,
-        }));
-
-        const nextWordIndex = currentWordIndex + 1;
-
-        // Replace words if we've completed all 25
-        if (nextWordIndex === 25) {
-          generateWords();
-          setCurrentWordIndex(0);
-        } else {
-          setCurrentWordIndex(nextWordIndex);
-        }
-
-        setInput("");
-        // Reset current word stats but keep incorrectChars for completed words
-        setStats((prev) => ({
-          ...prev,
-          correctChars: 0,
-          totalChars: 0,
-          // Keep incorrectChars as they are - don't clear them
-        }));
-      }
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (isComplete || timeRemaining <= 0) {
-      e.preventDefault();
-      return;
-    }
-  };
-
-  // Handle backspace to go back to previous words
-  const handleBackspace = () => {
-    if (input.length === 0 && currentWordIndex > 0) {
-      // Go back to previous word
-      const prevWordIndex = currentWordIndex - 1;
-      const prevWord = words[prevWordIndex];
-      setCurrentWordIndex(prevWordIndex);
-      setInput(prevWord?.text || "");
-
-      // Update stats for previous word
-      let correctCount = 0;
-      const newIncorrectChars = new Set(stats.incorrectChars);
-
-      // Clear incorrect chars for the word we're going back to
-      for (const key of newIncorrectChars) {
-        if (key.startsWith(`${prevWordIndex}-`)) {
-          newIncorrectChars.delete(key);
-        }
-      }
-
-      // Recalculate for the previous word
-      for (let i = 0; i < (prevWord?.text.length || 0); i++) {
-        if (i < prevWord?.text.length) {
-          const isCorrect =
-            input[i]?.toLowerCase() === prevWord.text[i].toLowerCase();
-          if (isCorrect) {
-            correctCount++;
-          } else {
-            newIncorrectChars.add(`${prevWordIndex}-${i}`);
-          }
-        }
-      }
-
-      setStats((prev) => ({
-        ...prev,
-        correctChars: correctCount,
-        totalChars: prevWord?.text.length || 0,
-        incorrectChars: newIncorrectChars,
-      }));
-    }
+    handleInputChange(e);
   };
 
   // ===== EFFECTS =====
@@ -290,64 +110,17 @@ export const useTypingTest = (duration: number = 60) => {
     generateWords();
   }, [generateWords]);
 
+  // Auto-trigger endTest when timer completes
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (isComplete) {
+      endTest();
     }
-  }, []);
-
-  useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        !target.closest("[data-typing-area]") &&
-        !target.closest("[data-typing-controls]") &&
-        !target.closest("input") &&
-        !target.closest("button") &&
-        !target.closest("[role='dialog']") &&
-        !isComplete &&
-        timeRemaining > 0
-      ) {
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-      }
-    };
-
-    document.addEventListener("click", handleGlobalClick);
-    return () => document.removeEventListener("click", handleGlobalClick);
-  }, [isComplete, timeRemaining]);
-
-  useEffect(() => {
-    if (isActive && startTime) {
-      timerRef.current = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const remaining = Math.max(0, duration - elapsed);
-
-        setTimeElapsed(elapsed);
-        setTimeRemaining(remaining);
-
-        if (remaining <= 0) {
-          endTestRef.current?.();
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [isActive, startTime, duration]);
+  }, [isComplete, endTest]);
 
   // Calculate final stats using cumulative statistics
-  const totalCorrectChars = cumulativeStats.correctChars + stats.correctChars;
-  const totalTotalChars = cumulativeStats.totalChars + stats.totalChars;
-
-  const finalStats: TypingStats = calculateStats(
-    totalCorrectChars,
-    totalTotalChars,
+  const finalStats: TypingStats = calculateFinalStats(
+    inputStats.correctChars,
+    inputStats.totalChars,
     timeElapsed,
   );
 
@@ -362,14 +135,14 @@ export const useTypingTest = (duration: number = 60) => {
     timeElapsed,
     timeRemaining,
     stats: finalStats,
-    incorrectChars: stats.incorrectChars,
+    incorrectChars: inputStats.incorrectChars,
 
     // Refs
     inputRef,
 
     // Actions
     resetTest,
-    handleInputChange,
+    handleInputChange: handleInputChangeWithTimer,
     handleKeyDown,
     handleKeyPress,
     handleContainerClick,
