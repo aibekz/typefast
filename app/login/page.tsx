@@ -1,9 +1,28 @@
 "use client";
 
 import { useAuth } from "../contexts/AuthContext";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
+
+  // Show loading while checking authentication
+  if (isAuthenticated) {
+    return (
+      <div className="h-screen bg-[var(--bg-dark)] flex flex-col justify-center items-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--purple-button)]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen bg-[var(--bg-dark)] flex flex-col justify-center items-center overflow-hidden">
