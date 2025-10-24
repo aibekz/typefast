@@ -9,7 +9,6 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import AuthGuard from "../components/auth/AuthGuard";
 import { useAuth } from "../contexts/AuthContext";
 
 interface Test {
@@ -85,34 +84,29 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <AuthGuard requireAuth={true}>
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--purple-button)]"></div>
-        </div>
-      </AuthGuard>
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--purple-button)]"></div>
+      </div>
     );
   }
 
   if (!stats) {
     return (
-      <AuthGuard requireAuth={true}>
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-[var(--fg-light)] mb-4">
-              No Data Available
-            </h2>
-            <p className="text-[var(--fg-muted)]">
-              Start taking typing tests to see your statistics here.
-            </p>
-          </div>
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[var(--fg-light)] mb-4">
+            No Data Available
+          </h2>
+          <p className="text-[var(--fg-muted)]">
+            Start taking typing tests to see your statistics here.
+          </p>
         </div>
-      </AuthGuard>
+      </div>
     );
   }
 
   return (
-    <AuthGuard requireAuth={true}>
-      <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
+    <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--fg-accent)] mb-2 font-space-grotesk">
             Welcome back, {user?.name || "User"}!
@@ -266,7 +260,6 @@ export default function DashboardPage() {
             </p>
           </div>
         )}
-      </div>
-    </AuthGuard>
+    </div>
   );
 }
